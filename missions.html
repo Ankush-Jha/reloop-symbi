@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Missions - ReLoop</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .missions-container {
+            min-height: 100vh;
+            background: var(--color-surface-dark);
+            padding-bottom: 140px;
+            position: relative;
+        }
+
+        /* Grid background pattern */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.4;
+            background-image:
+                linear-gradient(rgba(46, 184, 103, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(46, 184, 103, 0.08) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+
+        .gradient-overlay-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 160px;
+            background: linear-gradient(to bottom, #0a0a0a, transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .gradient-overlay-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 160px;
+            background: linear-gradient(to top, #0a0a0a, transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .missions-header {
+            position: relative;
+            z-index: 10;
+            padding: var(--space-8) var(--space-4) var(--space-4);
+            text-align: center;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: var(--space-6);
+            left: var(--space-4);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-primary);
+            text-decoration: none;
+            transition: all var(--transition-base);
+        }
+
+        .back-btn:hover {
+            background: var(--color-primary);
+            color: #000;
+            border-color: var(--color-primary);
+        }
+
+        .missions-title {
+            font-size: clamp(2rem, 12vw, 3.5rem);
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.03em;
+            line-height: 0.9;
+            text-transform: uppercase;
+            color: var(--color-primary);
+            text-shadow: 0 0 25px var(--color-primary-glow);
+            transform: rotate(-1deg);
+            margin-bottom: var(--space-4);
+        }
+
+        .missions-subtitle {
+            display: inline-block;
+            background: rgba(18, 18, 18, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: var(--space-1) var(--space-4);
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Missions List */
+        .missions-list {
+            position: relative;
+            z-index: 10;
+            padding: var(--space-6) var(--space-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .mission-card {
+            position: relative;
+            background: #121212;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            transition: all var(--transition-base);
+        }
+
+        .mission-card:hover {
+            border-color: var(--color-primary);
+        }
+
+        .mission-card:hover .pulse-dot {
+            opacity: 1;
+        }
+
+        .pulse-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--color-primary);
+            border-radius: var(--radius-full);
+            box-shadow: 0 0 8px var(--color-primary);
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .mission-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .mission-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .mission-icon-wrapper {
+            background: rgba(46, 184, 103, 0.1);
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(46, 184, 103, 0.2);
+        }
+
+        .mission-icon {
+            font-size: 24px;
+            color: var(--color-primary);
+        }
+
+        .mission-title {
+            font-weight: 700;
+            font-size: var(--text-lg);
+            line-height: 1.2;
+        }
+
+        .mission-difficulty {
+            font-size: 10px;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-top: var(--space-1);
+        }
+
+        .mission-reward {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .reward-value {
+            font-size: var(--text-2xl);
+            font-weight: 900;
+            color: var(--color-primary);
+            text-shadow: 0 0 10px var(--color-primary-glow);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .reward-coin {
+            font-size: 20px;
+        }
+
+        /* Progress Section */
+        .mission-progress {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+        }
+
+        .progress-header .value {
+            color: var(--color-text-primary);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: var(--radius-full);
+            box-shadow: 0 0 10px var(--color-primary);
+            transition: width 0.6s ease-out;
+        }
+
+        .progress-fill.completed {
+            background: linear-gradient(90deg, var(--color-primary), #4ade80);
+        }
+
+        /* Timer Badge */
+        .timer-badge {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: #FFD23F;
+            color: #000;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            box-shadow: 0 0 25px rgba(255, 210, 63, 0.3);
+            border: 2px solid #f5c518;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .timer-badge .icon {
+            font-size: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .timer-text {
+            font-family: monospace;
+            font-size: var(--text-base);
+        }
+
+        /* Completed Mission */
+        .mission-card.completed {
+            border-color: var(--color-primary);
+            background: rgba(46, 184, 103, 0.05);
+        }
+
+        .mission-card.completed .mission-title {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .mission-card.completed .claim-btn {
+            display: flex;
+        }
+
+        .claim-btn {
+            display: none;
+            width: 100%;
+            margin-top: var(--space-4);
+            padding: var(--space-3);
+            background: var(--color-primary);
+            color: #000;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 900;
+            font-size: var(--text-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            transition: all var(--transition-base);
+        }
+
+        .claim-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--color-primary-glow);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="gradient-overlay-top"></div>
+    <div class="gradient-overlay-bottom"></div>
+
+    <div class="app-container">
+        <div class="missions-container">
+            <!-- Header -->
+            <header class="missions-header">
+                <a href="home.html" class="back-btn">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <h1 class="missions-title">Daily<br>Missions</h1>
+                <div class="missions-subtitle">Complete to earn bonus coins</div>
+            </header>
+
+            <!-- Missions List -->
+            <div class="missions-list">
+                <!-- Mission 1 - In Progress -->
+                <div class="mission-card stagger-item">
+                    <div class="pulse-dot"></div>
+                    <div class="mission-header">
+                        <div class="mission-info">
+                            <div class="mission-icon-wrapper">
+                                <span class="material-symbols-outlined mission-icon">photo_camera</span>
+                            </div>
+                            <div>
+                                <h3 class="mission-title">Snap 3 items today</h3>
+                                <p class="mission-difficulty">Difficulty: Easy</p>
+                            </div>
+                        </div>
+                        <div class="mission-reward">
+                            <span class="reward-value">+50 <span class="reward-coin">🪙</span></span>
+                        </div>
+                    </div>
+                    <div class="mission-progress">
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span class="value">1/3</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 33%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission 2 - Not Started -->
+                <div class="mission-card stagger-item">
+                    <div class="pulse-dot"></div>
+                    <div class="mission-header">
+                        <div class="mission-info">
+                            <div class="mission-icon-wrapper">
+                                <span class="material-symbols-outlined mission-icon">chat</span>
+                            </div>
+                            <div>
+                                <h3 class="mission-title">Message a trader</h3>
+                                <p class="mission-difficulty">Difficulty: Easy</p>
+                            </div>
+                        </div>
+                        <div class="mission-reward">
+                            <span class="reward-value">+30 <span class="reward-coin">🪙</span></span>
+                        </div>
+                    </div>
+                    <div class="mission-progress">
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span class="value">0/1</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission 3 - Completed -->
+                <div class="mission-card completed stagger-item">
+                    <div class="pulse-dot"></div>
+                    <div class="mission-header">
+                        <div class="mission-info">
+                            <div class="mission-icon-wrapper">
+                                <span class="material-symbols-outlined mission-icon">recycling</span>
+                            </div>
+                            <div>
+                                <h3 class="mission-title">List a recyclable item</h3>
+                                <p class="mission-difficulty">Difficulty: Medium</p>
+                            </div>
+                        </div>
+                        <div class="mission-reward">
+                            <span class="reward-value">+75 <span class="reward-coin">🪙</span></span>
+                        </div>
+                    </div>
+                    <div class="mission-progress">
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span class="value">1/1 ✓</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill completed" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <button class="claim-btn">
+                        <span class="material-symbols-outlined">redeem</span>
+                        Claim Reward
+                    </button>
+                </div>
+
+                <!-- Mission 4 - Hard Challenge -->
+                <div class="mission-card stagger-item">
+                    <div class="pulse-dot"></div>
+                    <div class="mission-header">
+                        <div class="mission-info">
+                            <div class="mission-icon-wrapper">
+                                <span class="material-symbols-outlined mission-icon">campaign</span>
+                            </div>
+                            <div>
+                                <h3 class="mission-title">Share your impact story</h3>
+                                <p class="mission-difficulty">Difficulty: Hard</p>
+                            </div>
+                        </div>
+                        <div class="mission-reward">
+                            <span class="reward-value">+100 <span class="reward-coin">🪙</span></span>
+                        </div>
+                    </div>
+                    <div class="mission-progress">
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span class="value">0/1</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission 5 - Trade -->
+                <div class="mission-card stagger-item">
+                    <div class="pulse-dot"></div>
+                    <div class="mission-header">
+                        <div class="mission-info">
+                            <div class="mission-icon-wrapper">
+                                <span class="material-symbols-outlined mission-icon">sync_alt</span>
+                            </div>
+                            <div>
+                                <h3 class="mission-title">Complete a trade</h3>
+                                <p class="mission-difficulty">Difficulty: Medium</p>
+                            </div>
+                        </div>
+                        <div class="mission-reward">
+                            <span class="reward-value">+150 <span class="reward-coin">🪙</span></span>
+                        </div>
+                    </div>
+                    <div class="mission-progress">
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span class="value">0/1</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Badge -->
+            <div class="timer-badge">
+                <span class="material-symbols-outlined icon">timer</span>
+                <span class="timer-text" id="timer">Time Remaining: 14H 22M</span>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="search.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">search</span>
+                    </a>
+                </li>
+                <li class="nav-item nav-add-btn">
+                    <a href="result.html" class="icon-btn">
+                        <span class="material-symbols-outlined icon">add</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="messages.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">chat_bubble</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="profile.html" class="nav-link active">
+                        <span class="material-symbols-outlined icon icon-filled">person</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Noise Overlay -->
+    <div class="noise-overlay"></div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Countdown timer
+        function updateTimer() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById('timer').textContent = `Time Remaining: ${hours}H ${minutes}M`;
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 60000);
+
+        // Claim button interaction
+        document.querySelectorAll('.claim-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                this.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Claimed!';
+                this.disabled = true;
+                this.style.background = '#333';
+                this.style.color = '#888';
+
+                // Show toast
+                if (typeof showToast === 'function') {
+                    showToast('🪙 +75 coins added to your wallet!', 'success');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
