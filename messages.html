@@ -268,7 +268,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="chat-list">
-                <a href="#" class="chat-item unread stagger-item">
+                <a href="chat.html" class="chat-item unread stagger-item">
                     <div class="chat-avatar unread">
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO5YCi5O8FCLfzUebEZGo06paGggAst7_OzvlELDu9jWEIQ4xRNKiu0nq2MbFhXCq0L7iCNg8iVmouKSptH3pdPELpp2ZmWltKoYBcpVPJ3iXnwH1iSv3_HUvnX-dfxhlu6mQu-hQ9-S9UbDOQKNj1BZTtRoVzHqZtlSk4vFQtFB2LwkyofmzIRoinY4RPXfh8WsYp8p0oXRpyHTQxjgkWdfVoQ15iV0ttkJ50gkYa8pj511ITFvI-V7vLnV7ZMHEwVUtiG1MxyRk"
                             alt="StudentJane">
@@ -290,7 +290,7 @@
                     </div>
                 </a>
 
-                <a href="#" class="chat-item unread stagger-item">
+                <a href="chat.html" class="chat-item unread stagger-item">
                     <div class="chat-avatar unread">
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDET0ad7LiSUlhwJjz4bIzJWPwNY2_-9RZgxNEZGpvfT-LY_0Tho0HbJeQEGXH0pcvKkdLbQGA_-_UnYd7GJD3dZYVePIiz3Qdceu8pOpRkkRmNe6SWVwTApFKgk4EQ5-PIhQBkz2qHRNRNxKalR-sGDkB_0j1oc4ASPIIR4q0ZtU4mKlr3CELwQ2YnLZaPliqYitkj3OIhxmWMZJ18I-cpFPHCWxBcVsSG0agq3n9TozE5D-Utj5_D3qSxyCwe513iTWceo73yZkM"
                             alt="Mikey">
@@ -311,7 +311,7 @@
                     </div>
                 </a>
 
-                <a href="#" class="chat-item stagger-item">
+                <a href="chat.html" class="chat-item stagger-item">
                     <div class="chat-avatar">
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXNdMMYG7s_pH44YUMySsgMOxvWfeEGTE8Hx0Zy1YYyxulGswbycpN2qunOF8AiksxwCrTMiTlbWeTfRGdO_GR34UalUrwHHD_J1GuGElyDMYq68KgRtldjyV0KhbS4Q2N4L8JLiEZ7gciXaZoaiwaNypLsFswsOc5uocrxu6C9B1Qof1Jhz0o50D_QTWjSAGr-GbmAdHfwCZqEoTWNijdA-p82_MMjX1BURruAz1pYa5nKkoIcAkRFa3UovvanybDEC7BjDLPDO0"
                             alt="Sarah">
@@ -331,7 +331,7 @@
                     </div>
                 </a>
 
-                <a href="#" class="chat-item stagger-item">
+                <a href="chat.html" class="chat-item stagger-item">
                     <div class="chat-avatar">
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnu_nYgzzTxmWWJtN0-wtLY9tR0-244AJdoYr8xj5xv2LR58ibNqu35mlMxfl5Djo_QdaFKCh-g0d-gJzln9DOnPKaJVc4JdSwhxh7A9G59Nj0gvFUoBZiF_bH6Ma6Chr6duSjS5g8CkNgv4JI6Hcu4wyBbxydIMTaDnj8iIJvNSuHMibJx_HIgRbsp5v2V1X-M-y_2GHsY-GjgwodeYn3V0tvCd4nLmUyl6VyaAh7UHuXKFTMiQWv8GZpmVey9kD-uUQYctjo0PY"
                             alt="Campus">
@@ -358,7 +358,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="search.html" class="nav-link">
+                    <a href="marketplace.html" class="nav-link">
                         <span class="material-symbols-outlined icon">search</span>
                     </a>
                 </li>
@@ -385,6 +385,22 @@
     <div class="noise-overlay"></div>
 
     <script src="js/app.js"></script>
+    <script>
+        // Chat tab switching
+        document.querySelectorAll('.chat-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabName = tab.textContent.trim().split('\n')[0];
+                showToast(`Showing ${tabName} chats`);
+            });
+        });
+
+        // Edit button
+        document.querySelector('.page-header .icon-btn')?.addEventListener('click', () => {
+            showToast('Select chats to manage');
+        });
+    </script>
 </body>
 
 </html>

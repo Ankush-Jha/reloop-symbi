@@ -408,6 +408,39 @@
     <div class="noise-overlay"></div>
 
     <script src="js/app.js"></script>
+    <script>
+        // Filter chip functionality
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('active');
+            });
+        });
+
+        // Clear all recent searches
+        document.querySelector('.section-action')?.addEventListener('click', () => {
+            document.querySelector('.recent-list').innerHTML = '';
+            showToast('Search history cleared');
+        });
+
+        // Recent items click handler
+        document.querySelectorAll('.recent-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const searchTerm = item.querySelector('.text').textContent;
+                document.querySelector('.search-input').value = searchTerm;
+                showToast(`Searching for "${searchTerm}"...`);
+            });
+        });
+
+        // Search input handler
+        document.querySelector('.search-input')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                showToast(`Searching for "${e.target.value}"...`);
+                setTimeout(() => {
+                    window.location.href = 'marketplace.html';
+                }, 500);
+            }
+        });
+    </script>
 </body>
 
 </html>

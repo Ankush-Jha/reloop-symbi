@@ -419,7 +419,7 @@
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">savings</span>
-                    <div class="stat-value">$120</div>
+                    <div class="stat-value">₹1,200</div>
                     <div class="stat-label">Earned</div>
                 </div>
                 <div class="stat-card stagger-item">
@@ -497,7 +497,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="search.html" class="nav-link">
+                    <a href="marketplace.html" class="nav-link">
                         <span class="material-symbols-outlined icon">search</span>
                     </a>
                 </li>
@@ -524,6 +524,21 @@
     <div class="noise-overlay"></div>
 
     <script src="js/app.js"></script>
+    <script>
+        // Wallet action buttons
+        document.querySelectorAll('.wallet-action-btn').forEach((btn, index) => {
+            const actions = ['History', 'Cash Out'];
+            if (btn.textContent.trim() === 'History') {
+                btn.addEventListener('click', () => {
+                    showToast('Loading coin history...');
+                });
+            } else if (btn.textContent.trim() === 'Cash Out') {
+                btn.addEventListener('click', () => {
+                    showToast('Cash out coming soon!');
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
