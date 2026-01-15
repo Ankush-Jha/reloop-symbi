@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success Stories - ReLoop</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-6) var(--space-4);
+            position: relative;
+            z-index: 20;
+        }
+
+        .page-title {
+            font-size: var(--text-2xl);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .main-content {
+            padding: 0 var(--space-4);
+            padding-bottom: 120px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: var(--space-6) 0;
+            margin-bottom: var(--space-6);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            background: var(--color-primary);
+            color: #000;
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-4);
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 8vw, 2.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: var(--space-3);
+        }
+
+        .hero-subtitle {
+            font-size: var(--text-base);
+            color: var(--color-text-secondary);
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-3);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: var(--color-surface-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--text-2xl);
+            font-weight: 900;
+            color: var(--color-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: var(--text-xs);
+            font-weight: 600;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Stories Section */
+        .stories-section {
+            margin-bottom: var(--space-8);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-5);
+        }
+
+        .section-title {
+            font-size: var(--text-lg);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        /* Story Card */
+        .story-card {
+            background: var(--color-surface-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            margin-bottom: var(--space-5);
+            transition: all var(--transition-base);
+        }
+
+        .story-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .story-image {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        .story-content {
+            padding: var(--space-5);
+        }
+
+        .story-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .story-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--color-primary);
+            overflow: hidden;
+        }
+
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .story-user-info {
+            flex: 1;
+        }
+
+        .story-user-name {
+            font-size: var(--text-base);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .story-user-tag {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+        }
+
+        .story-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: var(--space-1) var(--space-2);
+            background: var(--color-primary);
+            color: #000;
+            border-radius: var(--radius-md);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .story-badge .icon {
+            font-size: 12px;
+        }
+
+        .story-title {
+            font-size: var(--text-lg);
+            font-weight: 800;
+            margin-bottom: var(--space-2);
+        }
+
+        .story-text {
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-4);
+        }
+
+        .story-stats {
+            display: flex;
+            gap: var(--space-4);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .story-stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+        }
+
+        .story-stat .icon {
+            font-size: 18px;
+            color: var(--color-primary);
+        }
+
+        .story-stat strong {
+            color: var(--color-text-primary);
+            font-weight: 700;
+        }
+
+        /* Trade Details */
+        .trade-details {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            background: #000;
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .trade-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .trade-item-label {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-1);
+        }
+
+        .trade-item-value {
+            font-size: var(--text-sm);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .trade-arrow {
+            font-size: 24px;
+            color: var(--color-primary);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #a3e635 100%);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            text-align: center;
+            color: #000;
+        }
+
+        .cta-title {
+            font-size: var(--text-2xl);
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: var(--space-2);
+        }
+
+        .cta-text {
+            font-size: var(--text-sm);
+            opacity: 0.8;
+            margin-bottom: var(--space-5);
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-4) var(--space-6);
+            background: #000;
+            color: var(--color-primary);
+            border-radius: var(--radius-xl);
+            font-size: var(--text-base);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            transition: all var(--transition-base);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .cta-button .icon {
+            font-size: 20px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: var(--color-surface-dark);
+            border-top: 1px solid var(--color-border);
+            padding: var(--space-3) var(--space-4);
+            z-index: var(--z-nav);
+        }
+
+        .nav-list {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-1);
+            color: var(--color-text-muted);
+            text-decoration: none;
+            transition: all var(--transition-base);
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: var(--color-primary);
+        }
+
+        .nav-add-btn .icon-btn {
+            background: var(--color-primary);
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="page-header">
+            <a href="home.html" class="icon-btn">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1 class="page-title">Success Stories</h1>
+            <button class="icon-btn">
+                <span class="material-symbols-outlined">share</span>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero-section fade-in">
+                <span class="hero-badge">
+                    <span class="material-symbols-outlined icon">favorite</span>
+                    Real Stories
+                </span>
+                <h2 class="hero-title">Students Helping Students</h2>
+                <p class="hero-subtitle">See how our community is making sustainable swaps happen every day!</p>
+            </section>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar stagger-item">
+                <div class="stat-card">
+                    <div class="stat-value">2.5K+</div>
+                    <div class="stat-label">Trades</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">850</div>
+                    <div class="stat-label">kg CO2</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">₹4.2L</div>
+                    <div class="stat-label">Saved</div>
+                </div>
+            </div>
+
+            <!-- Stories Section -->
+            <section class="stories-section">
+                <div class="section-header">
+                    <h2 class="section-title">Featured Stories</h2>
+                </div>
+
+                <!-- Story 1 -->
+                <a href="story-priya.html" style="text-decoration: none; color: inherit;">
+                    <article class="story-card stagger-item">
+                        <img src="images/story-books.png" alt="Book Exchange" class="story-image">
+                        <div class="story-content">
+                            <div class="story-header">
+                                <div class="story-avatar">
+                                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApkHqu9en_dVgoUQ5TxuxRwSW6yU7PlEVw7qMyX8NYJDg5JUimrQSXFdhHGR7Ud2rtjzu9TqorwH8tqn4yq11F-adrhv8T3hnPTMvRdQ-v3SZWx1-8DrFuTzQST64A5ZZq8xq-yoUiNvp-gHkAnPzdsCJR_pOBj-7tSGs4IiPI9oXnbKHMS34Bt4v54Q6TNgD0u3_T1dsJPK3GntZKruZiOGgQeu27ZTXDWSkfiLbcEZphBARRLRjk3i0msDHXE1vMz2nlqIHfcWI"
+                                        alt="Priya">
+                                </div>
+                                <div class="story-user-info">
+                                    <div class="story-user-name">Priya Sharma</div>
+                                    <div class="story-user-tag">Engineering, 3rd Year</div>
+                                </div>
+                                <span class="story-badge">
+                                    <span class="material-symbols-outlined icon">verified</span>
+                                    Verified
+                                </span>
+                            </div>
+
+                            <h3 class="story-title">"Saved ₹3000 on textbooks!"</h3>
+                            <p class="story-text">
+                                I was dreading buying new books for this semester. Found a senior selling the exact set
+                                I
+                                needed for just 80 coins! We met at the library and exchanged. Best decision ever!
+                            </p>
+
+                            <div class="trade-details">
+                                <div class="trade-item">
+                                    <div class="trade-item-label">Traded</div>
+                                    <div class="trade-item-value">Old Notes</div>
+                                </div>
+                                <span class="material-symbols-outlined trade-arrow">swap_horiz</span>
+                                <div class="trade-item">
+                                    <div class="trade-item-label">Received</div>
+                                    <div class="trade-item-value">9 Textbooks</div>
+                                </div>
+                            </div>
+
+                            <div class="story-stats">
+                                <div class="story-stat">
+                                    <span class="material-symbols-outlined icon icon-filled">eco</span>
+                                    <span><strong>25kg</strong> CO2 saved</span>
+                                </div>
+                                <div class="story-stat">
+                                    <span class="material-symbols-outlined icon">schedule</span>
+                                    <span>2 weeks ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </a>
+
+                <!-- Story 2 -->
+                <a href="story-ananya.html" style="text-decoration: none; color: inherit;">
+                    <article class="story-card stagger-item">
+                        <img src="images/story-electronics.png" alt="Electronics Trade" class="story-image">
+                        <div class="story-content">
+                            <div class="story-header">
+                                <div class="story-avatar">
+                                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaty_8pOqc7WeTqO76RukZ3Q9Cu4hm3fT0oobm0S3iSXOLkk7vU7OdBTR7rqtWTDxq7n3HWGvhJkArrC3wQ5E8WSSZAZG47KC9tVeSMqpf9-2ecnQN2fhwlMEDTgymlE_I2zeC46rTtdDlWTvOv_jH-wO5999W4Ymj7gGvLDIoG6_cwMxxntShFa630lbKpRUbn4tWrfvOi9Nt8L1XnHh157VZGMMcL4r7lSiHoCVetm6FO1GtAoVNRTDC-XDYPLFvjn6-DOSdz-4"
+                                        alt="Ananya">
+                                </div>
+                                <div class="story-user-info">
+                                    <div class="story-user-name">Ananya Patel</div>
+                                    <div class="story-user-tag">MBA, 1st Year</div>
+                                </div>
+                                <span class="story-badge">
+                                    <span class="material-symbols-outlined icon">local_fire_department</span>
+                                    Hot
+                                </span>
+                            </div>
+
+                            <h3 class="story-title">"Got a charger in 30 minutes!"</h3>
+                            <p class="story-text">
+                                My laptop charger broke right before exams. Posted on ReLoop and found someone in the
+                                same
+                                building with an extra one! Traded my old headphones for it instantly.
+                            </p>
+
+                            <div class="trade-details">
+                                <div class="trade-item">
+                                    <div class="trade-item-label">Traded</div>
+                                    <div class="trade-item-value">Headphones</div>
+                                </div>
+                                <span class="material-symbols-outlined trade-arrow">swap_horiz</span>
+                                <div class="trade-item">
+                                    <div class="trade-item-label">Received</div>
+                                    <div class="trade-item-value">100W Charger</div>
+                                </div>
+                            </div>
+
+                            <div class="story-stats">
+                                <div class="story-stat">
+                                    <span class="material-symbols-outlined icon icon-filled">eco</span>
+                                    <span><strong>5kg</strong> CO2 saved</span>
+                                </div>
+                                <div class="story-stat">
+                                    <span class="material-symbols-outlined icon">schedule</span>
+                                    <span>5 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </a>
+
+                <!-- Story 3 -->
+                <a href="story-rahul.html" style="text-decoration: none; color: inherit;">
+                    <article class="story-card stagger-item">
+                        <img src="images/story-lamp.png" alt="Hostel Trade" class="story-image">
+                        <div class="story-content">
+                            <div class="story-header">
+                                <div class="story-avatar">
+                                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh2UC2A0xMi9I7nN3x-If9ZJ7sdFv9hXhw989YFXZbrVy9p-D8C_iSqcEkJYoRxTvnO3v1YGF_LSoVoci4aVNT5E9_F4CS6sF4P1cRTgARYXUvLPn602HQ3hh-T5dGBBTWSAgZ5fSusqof6XmjE-BqoyYv9ESOGFb6lMEFcnQNvvCIrITCLbcHW1tfqtkgPJFFUz9XRtUNAlzGkLEybpwBd0Bc2UHEXdUBtsvHN7O-OSl5EQfa2q22sdFpvE-IxPlMdTSkObxv7jY"
+                                        alt="Rahul">
+                                </div>
+                                <div class="story-user-info">
+                                    <div class="story-user-name">Rahul Verma</div>
+                                    <div class="story-user-tag">Computer Science, 2nd Year</div>
+                                </div>
+                                <span class="story-badge">
+                                    <span class="material-symbols-outlined icon">stars</span>
+                                    Top Trader
+                                </span>
+                            </div>
+
+                            <h3 class="story-title">"Perfect study setup for free!"</h3>
+                            <p class="story-text">
+                                Moving to a new hostel and needed a study lamp. Found someone graduating who was giving
+                                away
+                                their entire study setup. Just paid 30 coins and got a lamp plus desk organizer!
+                            </p>
+
+                            <div class="trade-details">
+                                <div class="trade-item">
+                                    <div class="trade-item-label">Traded</div>
+                                    <div class="trade-item-value">30 Coins</div>
+                                </div>
+                                <span class="material-symbols-outlined trade-arrow">swap_horiz</span>
+                                <div class="trade-item">
+                                    <div class="trade-item-label">Received</div>
+                                    <div class="trade-item-value">Study Setup</div>
+                                </div>
+                            </div>
+
+                            <div class="story-stats">
+                                <div class="story-stat">
+                                    <span class="material-symbols-outlined icon icon-filled">eco</span>
+                                    <span><strong>8kg</strong> CO2 saved</span>
+                                </div>
+                                <div class="story-stat">
+                                    <span class="material-symbols-outlined icon">schedule</span>
+                                    <span>1 day ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </a>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="cta-section stagger-item">
+                <h2 class="cta-title">Share Your Story</h2>
+                <p class="cta-text">Made a successful trade? Tell us about it and inspire others!</p>
+                <a href="home.html" class="cta-button">
+                    <span class="material-symbols-outlined icon">edit</span>
+                    Submit Story
+                </a>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="marketplace.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">search</span>
+                    </a>
+                </li>
+                <li class="nav-item nav-add-btn">
+                    <a href="result.html" class="icon-btn">
+                        <span class="material-symbols-outlined icon">add</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="messages.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">chat_bubble</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="profile.html" class="nav-link">
+                        <span class="material-symbols-outlined icon">person</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Noise Overlay -->
+    <div class="noise-overlay"></div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
