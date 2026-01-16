@@ -58,49 +58,57 @@ http://localhost:3000
 
 ```
 reloop/
-├── index.html          # Entry point (redirects to onboarding)
-├── home.html           # Main dashboard
-├── onboarding.html     # Welcome & signup flow
+├── index.html                      # Entry point (redirects to onboarding)
 │
-├── 📦 Marketplace
-│   ├── marketplace.html    # Browse items
-│   ├── item.html           # Item details template
-│   ├── item-*.html         # Specific items (books, charger, etc.)
-│   ├── search.html         # Search page
-│   └── trade.html          # Trade confirmation
+├── 📁 pages/
+│   ├── 🏠 core/                    # Main pages
+│   │   ├── home.html               # Dashboard
+│   │   ├── onboarding.html         # Welcome flow
+│   │   └── search.html             # Search
+│   │
+│   ├── 🛒 marketplace/             # Trading
+│   │   ├── marketplace.html        # Browse items
+│   │   ├── item.html               # Item template
+│   │   ├── item-*.html             # Specific items
+│   │   ├── trade.html              # Trade confirmation
+│   │   └── create-listing.html     # List new item
+│   │
+│   ├── 🔍 scanner/                 # AI features
+│   │   ├── scanning.html           # AI analysis animation
+│   │   ├── scan1.html              # Scan results summary
+│   │   ├── scan2.html              # Detailed ideas
+│   │   ├── result.html             # Static result
+│   │   ├── recycle.html            # Recycling info
+│   │   └── upcycle.html            # Upcycling guide
+│   │
+│   ├── 🏆 gamification/            # Game features
+│   │   ├── missions.html           # Daily missions
+│   │   ├── achievements.html       # Badges
+│   │   ├── leaderboard.html        # Campus rankings
+│   │   ├── level-up.html           # Level celebration
+│   │   └── wrapped.html            # Eco Wrapped stats
+│   │
+│   ├── 👤 user/                    # User pages
+│   │   ├── profile.html            # User profile
+│   │   ├── settings.html           # App settings
+│   │   ├── notifications.html      # Notifications
+│   │   ├── messages.html           # Chat list
+│   │   └── chat.html               # Chat view
+│   │
+│   ├── 📖 stories/                 # Success stories
+│   │   ├── success-stories.html    # All stories
+│   │   └── story-*.html            # Individual stories
+│   │
+│   └── 🪙 rewards/
+│       └── redeem.html             # Coin redemption
 │
-├── 🔍 AI Scanner
-│   ├── scanning.html       # AI analysis animation
-│   ├── scan1.html          # Scan results summary
-│   ├── scan2.html          # Detailed upcycle ideas
-│   ├── result.html         # Static result page
-│   └── result-dynamic.html # Dynamic result page
+├── 📁 css/
+│   └── styles.css                  # Global styles
 │
-├── 🏆 Gamification
-│   ├── missions.html       # Daily missions
-│   ├── achievements.html   # Badges & achievements
-│   ├── leaderboard.html    # Campus rankings
-│   ├── level-up.html       # Level up celebration
-│   └── wrapped.html        # Eco Wrapped summary
+├── 📁 js/
+│   └── app.js                      # Main JavaScript
 │
-├── 👤 User
-│   ├── profile.html        # User profile
-│   ├── settings.html       # App settings
-│   ├── notifications.html  # Notifications
-│   └── messages.html       # Chat list
-│
-├── 📖 Stories
-│   ├── success-stories.html    # All stories
-│   └── story-*.html            # Individual stories
-│
-├── 🪙 Rewards
-│   ├── redeem.html         # Coin redemption
-│   └── recycle.html        # Recycling info
-│
-├── 🎨 Assets
-│   ├── css/styles.css      # Global styles
-│   ├── js/app.js           # Main JavaScript
-│   └── images/             # All images & screenshots
+├── 📁 images/                      # All images
 │
 └── README.md
 ```
