@@ -1818,11 +1818,40 @@
         </script>
         <script>
             // Update greeting with user name
-            function updateGreeting() {
-                const name = localStorage.getItem('reloop_userName') || 'Friend';
+            async function updateGreeting() {
+                let name = localStorage.getItem('reloop_userName');
+
+                // If name is found and valid, show it
+                if (name && name !== 'Friend' && name !== 'User') {
+                    setGreeting(name);
+                    return;
+                }
+
+                // Fallback: Fetch directly if name is missing/default
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    console.log('Fetching user profile for greeting fallback...');
+                    try {
+                        const doc = await db.collection('users').doc(user.uid).get();
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            name = userData.name || 'Friend';
+                            localStorage.setItem('reloop_userName', name);
+                            setGreeting(name);
+                        }
+                    } catch (e) {
+                        console.error('Error fetching name fallback:', e);
+                        setGreeting('Friend');
+                    }
+                } else {
+                    // Not logged in yet, wait for auth state change
+                    setGreeting('Friend');
+                }
+            }
+
+            function setGreeting(name) {
                 const greetingEl = document.querySelector('.greeting-title');
                 if (greetingEl) {
-                    // Keep the "Hello," part if it exists, replace the name
                     greetingEl.innerHTML = `Hello, <br> <span style="color: var(--color-primary);">${name}</span>`;
                 }
             }
@@ -1830,9 +1859,16 @@
             // Run on load
             document.addEventListener('DOMContentLoaded', updateGreeting);
 
-            // Listen for profile load event
+            // Listen for profile load event (from firebase-config.js)
             window.addEventListener('userProfileLoaded', (e) => {
                 if (e.detail && e.detail.name) {
+                    setGreeting(e.detail.name);
+                }
+            });
+
+            // Also listen for auth state change right here as a backup
+            firebase.auth().onAuthStateChanged(user => {
+                if (user && (!localStorage.getItem('reloop_userName') || localStorage.getItem('reloop_userName') === 'Friend')) {
                     updateGreeting();
                 }
             });
