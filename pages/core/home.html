@@ -1196,7 +1196,7 @@
             <div class="header-actions">
                 <a href="../rewards/redeem.html" class="coin-badge" style="text-decoration: none; color: inherit;">
                     <span class="material-symbols-outlined icon icon-filled">eco</span>
-                    <span class="value coin-value">850</span>
+                    <span class="value coin-value" id="user-total-coins">...</span>
                 </a>
                 <a href="../user/notifications.html" class="icon-btn">
                     <span class="material-symbols-outlined">notifications</span>
@@ -1211,13 +1211,13 @@
                 <a href="../user/profile.html" class="xp-section">
                     <div class="xp-info">
                         <span class="xp-level">
-                            <span class="level-badge">LVL 12</span>
-                            <span class="xp-text">2,450 / 3,000 XP</span>
+                            <span class="level-badge" id="user-level-badge">...</span>
+                            <span class="xp-text" id="user-xp-text">... / ... XP</span>
                         </span>
                     </div>
                     <div class="xp-bar-container">
                         <div class="xp-bar">
-                            <div class="xp-bar-fill" style="width: 82%;"></div>
+                            <div class="xp-bar-fill" id="user-xp-bar" style="width: 0%;"></div>
                             <div class="xp-bar-glow"></div>
                         </div>
                     </div>
@@ -1345,52 +1345,18 @@
                     </div>
                 </div>
 
-                <div class="leaderboard-list-snippet">
-                    <!-- Top 3 Players -->
-                    <div class="leaderboard-row">
-                        <div class="lb-rank">1</div>
-                        <div class="lb-avatar">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKpUQ4iADzLq-ccOV1CPZoSFuDlTjC6me7On072Iu604MKDrc41FIze13cZoInG53M0oSRrSE1CAoSrq8HyQV1JbWWpqr7JsurQ6x7U7tvwByuZZXv2xNWV1lTXlhGEbcHXMuCD_g6j7mz42NtjjON0kXjQa-1bmaF4QLxvBoeKgC4oJJpn_o0LKGzDV84b3x_kORdU19P-KzHxHih9YN3myehOa4v0W6YOx0Un6th8GN223vCsjikY9glwStv5holxulY-zTl2uE"
-                                alt="Eco_Beast">
-                        </div>
-                        <div class="lb-info">
-                            <div class="lb-name">Eco_Beast 👑</div>
-                            <div class="lb-dept">Computer Science</div>
-                        </div>
-                        <div class="lb-points">4.2k</div>
-                    </div>
-
-                    <div class="leaderboard-row">
-                        <div class="lb-rank">2</div>
-                        <div class="lb-avatar">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaty_8pOqc7WeTqO76RukZ3Q9Cu4hm3fT0oobm0S3iSXOLkk7vU7OdBTR7rqtWTDxq7n3HWGvhJkArrC3wQ5E8WSSZAZG47KC9tVeSMqpf9-2ecnQN2fhwlMEDTgymlE_I2zeC46rTtdDlWTvOv_jH-wO5999W4Ymj7gGvLDIoG6_cwMxxntShFa630lbKpRUbn4tWrfvOi9Nt8L1XnHh157VZGMMcL4r7lSiHoCVetm6FO1GtAoVNRTDC-XDYPLFvjn6-DOSdz-4"
-                                alt="GreenMachine">
-                        </div>
-                        <div class="lb-info">
-                            <div class="lb-name">GreenMachine</div>
-                            <div class="lb-dept">Biology Dept</div>
-                        </div>
-                        <div class="lb-points">3.9k</div>
-                    </div>
-
-                    <div class="leaderboard-row">
-                        <div class="lb-rank">3</div>
-                        <div class="lb-avatar">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApkHqu9en_dVgoUQ5TxuxRwSW6yU7PlEVw7qMyX8NYJDg5JUimrQSXFdhHGR7Ud2rtjzu9TqorwH8tqn4yq11F-adrhv8T3hnPTMvRdQ-v3SZWx1-8DrFuTzQST64A5ZZq8xq-yoUiNvp-gHkAnPzdsCJR_pOBj-7tSGs4IiPI9oXnbKHMS34Bt4v54Q6TNgD0u3_T1dsJPK3GntZKruZiOGgQeu27ZTXDWSkfiLbcEZphBARRLRjk3i0msDHXE1vMz2nlqIHfcWI"
-                                alt="SustainSara">
-                        </div>
-                        <div class="lb-info">
-                            <div class="lb-name">SustainSara</div>
-                            <div class="lb-dept">Arts Dept</div>
-                        </div>
-                        <div class="lb-points">3.6k</div>
+                <div class="leaderboard-list-snippet" id="leaderboard-preview-list">
+                    <!-- Dynamic Leaderboard Rows Will Be Loaded Here -->
+                    <div class="leaderboard-row"
+                        style="justify-content: center; padding: 20px; color: var(--color-text-muted);">
+                        Loading leaderboard...
                     </div>
                 </div>
 
                 <!-- Your Rank Bar -->
                 <div class="leaderboard-your-rank">
                     <div class="your-rank-info">
-                        <div class="your-rank-badge">24</div>
+                        <div class="your-rank-badge" id="user-rank-badge">-</div>
                         <div class="your-rank-text">
                             <span class="your-rank-label">Your Rank</span>
                             <span class="your-rank-motivate">Keep pushing! 🔥</span>
@@ -1398,7 +1364,7 @@
                     </div>
                     <div class="your-rank-points">
                         <div class="your-rank-pts-label">Total Pts</div>
-                        <div class="your-rank-pts-value">850</div>
+                        <div class="your-rank-pts-value" id="user-rank-points">...</div>
                     </div>
                 </div>
             </a>
@@ -1578,9 +1544,107 @@
                     if (lbYou && user.name) {
                         lbYou.textContent = user.name + ' (You)';
                     }
+
+                    // Update coins
+                    const coinsEl = document.getElementById('user-total-coins');
+                    if (coinsEl) coinsEl.textContent = user.coins || 0;
+
+                    // Update Level and XP
+                    const levelBadge = document.getElementById('user-level-badge');
+                    const xpText = document.getElementById('user-xp-text');
+                    const xpBar = document.getElementById('user-xp-bar');
+
+                    if (levelBadge) levelBadge.textContent = 'LVL ' + (user.level || 1);
+
+                    // Logic to calculate max XP for next level (can import from GamificationService if available, else calc locally for now)
+                    // Assuming simplified levels derived from GamificationService structure seen earlier
+                    const currentLevel = user.level || 1;
+                    const xpPool = user.xp || 0;
+                    // Mock calculation based on typical level thresholds or fetch if GamificationService is available
+                    // For now, simple display
+                    if (xpText) xpText.textContent = `${xpPool} XP`;
+                    if (xpBar) {
+                        // Simple progress visual based on level (modulo 100 for example or just static fill until GamificationService is fully linked)
+                        // Better: Use GamificationService directly
+                        if (typeof GamificationService !== 'undefined') {
+                            const levelInfo = GamificationService.getLevelProgress(xpPool);
+                            if (levelInfo) {
+                                xpText.textContent = `${levelInfo.currentXP} / ${levelInfo.nextLevelXP} XP`;
+                                xpBar.style.width = `${levelInfo.progress}%`;
+                            }
+                        } else {
+                            xpBar.style.width = '10%'; // Default
+                        }
+                    }
+
+                    // Update Leaderboard Snippet
+                    await loadLeaderboardSnippet(userId);
+
                 }
             } catch (error) {
                 console.error('Error loading user greeting:', error);
+            }
+        }
+
+        // Load Leaderboard Snippet
+        async function loadLeaderboardSnippet(currentUserId) {
+            try {
+                if (typeof GamificationService === 'undefined') return;
+
+                // Get top 3
+                const leaderboard = await GamificationService.getLeaderboard('xp', 3);
+                const container = document.getElementById('leaderboard-preview-list');
+
+                if (container && leaderboard.length > 0) {
+                    container.innerHTML = leaderboard.map((entry, index) => {
+                        return `
+                        <div class="leaderboard-row">
+                            <div class="lb-rank">${index + 1}</div>
+                            <div class="lb-avatar">
+                                <img src="${entry.user.avatar || 'https://via.placeholder.com/40'}" alt="${entry.user.name}">
+                            </div>
+                            <div class="lb-info">
+                                <div class="lb-name">${entry.user.name} ${index === 0 ? '👑' : ''}</div>
+                                <div class="lb-dept">${entry.user.campus || 'Campus'}</div>
+                            </div>
+                            <div class="lb-points">${entry.xp >= 1000 ? (entry.xp / 1000).toFixed(1) + 'k' : entry.xp}</div>
+                        </div>
+                        `;
+                    }).join('');
+                } else if (container) {
+                    container.innerHTML = '<div style="padding:15px; text-align:center; color:white;">No players yet</div>';
+                }
+
+                // Get User Rank
+                const rankData = await GamificationService.getUserRank(currentUserId, 'xp');
+                const rankBadge = document.getElementById('user-rank-badge');
+                const rankPoints = document.getElementById('user-rank-points');
+
+                if (rankBadge) rankBadge.textContent = rankData.rank > 0 ? rankData.rank : '-';
+                // Show total XP points in the YOUR RANK section
+                if (rankPoints) {
+                    // Need to get user's XP. If we already fetched user in loadUserGreeting, we could pass it.
+                    // But let's just re-fetch or assume consistent data.
+                    // The rankData object likely contains the user's xp or we can wait for the userDoc.
+                    // Let's use what we know.
+                    // Wait, we can get it from the earlier fetch if we pass it, but simpler to just fetch or use DOM if we set it earlier.
+                    // Let's check GamificationService.getUserRank return type. It returns { rank: number, ...userStats }.
+                    // Wait, let's verify getUserRank signature. 
+                    // It is: getUserRank(userId, sortBy = 'xp')
+                    // Checking gamification.js file again...
+                    // const userDoc = await db.collection('users').doc(userId).get();
+                    // const userData = userDoc.data();
+                    // ...
+                    // return { rank: rank + 1, ...userData };
+
+                    if (rankData) {
+                        const xp = rankData.xp || 0;
+                        rankPoints.textContent = xp >= 1000 ? (xp / 1000).toFixed(1) + 'k' : xp;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading leaderboard snippet:', error);
             }
         }
 

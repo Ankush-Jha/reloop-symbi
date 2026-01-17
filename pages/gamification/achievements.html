@@ -310,7 +310,30 @@
     <div class="sparkle sparkle-4"></div>
 
     <div class="app-container">
-        <div class="achievement-container">
+        <!-- Gallery View -->
+        <div id="gallery-view" class="achievement-container"
+            style="display: block; justify-content: flex-start; overflow-y: auto;">
+            <header class="achievement-header" style="padding-top: var(--space-4); margin-bottom: var(--space-6);">
+                <a href="../user/profile.html" class="back-btn"
+                    style="position: absolute; left: var(--space-4); top: var(--space-4); display: flex; text-decoration: none; color: white;">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <h1 class="achievement-label" style="font-size: var(--text-2xl); animation: none;">Achievements</h1>
+                <div style="font-size: var(--text-sm); color: var(--color-text-muted); margin-top: var(--space-2);">
+                    <span id="total-progress">0/8</span> Unlocked
+                </div>
+            </header>
+
+            <div id="badges-grid"
+                style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); width: 100%; max-width: 500px;">
+                <!-- Loaded dynamically -->
+                <div style="grid-column: 1/-1; text-align: center; color: var(--color-text-muted);">Loading badges...
+                </div>
+            </div>
+        </div>
+
+        <!-- Celebration View (Hidden by default) -->
+        <div id="celebration-view" class="achievement-container" style="display: none;">
             <!-- Header -->
             <div class="achievement-header">
                 <h2 class="achievement-label">New Achievement Unlocked</h2>
@@ -322,19 +345,21 @@
                 <div class="shield">
                     <div class="shield-shine"></div>
                     <div class="shield-content">
-                        <span class="material-symbols-outlined icon icon-filled">military_tech</span>
-                        <div class="shield-rank">TOP<br>10</div>
+                        <span class="material-symbols-outlined icon icon-filled"
+                            id="celebration-icon">military_tech</span>
+                        <div class="shield-rank" id="celebration-name" style="font-size: 2rem; text-align: center;">
+                            Badge</div>
                     </div>
                     <div class="shield-divider"></div>
                 </div>
             </div>
 
             <!-- Badge Pill -->
-            <div class="badge-pill">Campus Elite</div>
+            <div class="badge-pill" id="celebration-desc">Description</div>
 
             <!-- Footer -->
             <div class="achievement-footer">
-                <button class="claim-btn" onclick="claimReward()">Claim Reward</button>
+                <button class="claim-btn" onclick="closeCelebration()">Continue</button>
             </div>
         </div>
     </div>
@@ -342,24 +367,74 @@
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/services/gamification.js"></script>
     <script src="../../js/app.js"></script>
+
     <script>
-        function claimReward() {
-            const btn = document.querySelector('.claim-btn');
-            btn.innerHTML = '✓ Reward Claimed!';
-            btn.disabled = true;
-            btn.style.background = '#333';
-            btn.style.color = '#fff';
-            btn.style.boxShadow = 'none';
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const badgeId = urlParams.get('id');
 
-            if (typeof showToast === 'function') {
-                showToast('🎉 You earned 500 bonus coins!', 'success');
+            if (badgeId) {
+                showCelebration(badgeId);
+            } else {
+                loadBadges();
             }
+        });
 
-            // Redirect after delay
-            setTimeout(() => {
-                window.location.href = 'profile.html';
-            }, 2000);
+        async function loadBadges() {
+            const userId = getCurrentUserId();
+            if (!userId) return;
+
+            try {
+                const badges = await GamificationService.getBadges(userId);
+                const unlockedCount = badges.filter(b => b.unlocked).length;
+
+                document.getElementById('total-progress').textContent = `${unlockedCount}/${badges.length}`;
+
+                const grid = document.getElementById('badges-grid');
+                grid.innerHTML = badges.map(badge => `
+                    <div class="mission-card stagger-item ${badge.unlocked ? 'completed' : ''}" 
+                         style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--space-4); border: 2px solid ${badge.unlocked ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)'}; background: ${badge.unlocked ? 'rgba(46, 184, 103, 0.05)' : '#1a1a1a'}; border-radius: var(--radius-xl); opacity: ${badge.unlocked ? '1' : '0.6'};">
+                        <div style="font-size: 2.5rem; margin-bottom: var(--space-2); filter: ${badge.unlocked ? 'none' : 'grayscale(1)'};">${badge.icon}</div>
+                        <div style="font-weight: 700; color: ${badge.unlocked ? 'var(--color-primary)' : 'var(--color-text-muted)'}; margin-bottom: var(--space-1);">${badge.name}</div>
+                        <div style="font-size: 11px; color: var(--color-text-muted); line-height: 1.3;">${badge.description}</div>
+                        ${badge.unlocked ? '<div style="margin-top: var(--space-2); font-size: 10px; color: var(--color-primary); font-weight: 700;">UNLOCKED</div>' : '<div style="margin-top: var(--space-2); font-size: 10px; color: var(--color-text-muted);">LOCKED</div>'}
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading badges:', error);
+            }
+        }
+
+        async function showCelebration(badgeId) {
+            document.getElementById('gallery-view').style.display = 'none';
+            document.getElementById('celebration-view').style.display = 'flex';
+
+            // In a real app, fetch badge details by ID. For now, try to find in BADGES global
+            const badge = Object.values(BADGES).find(b => b.id === badgeId) || { name: 'Achievement', icon: '🏆', description: 'You unlocked a new badge!' };
+
+            document.getElementById('celebration-icon').textContent = badge.icon;
+            document.getElementById('celebration-name').textContent = badge.name;
+            document.getElementById('celebration-desc').textContent = badge.description;
+
+            // If it's an emoji icon, remove the material class or handle text content
+            if (badge.icon.match(/[\u{1F300}-\u{1F9FF}]/u)) { // Emoji check
+                const iconEl = document.getElementById('celebration-icon');
+                iconEl.classList.remove('material-symbols-outlined', 'icon', 'icon-filled');
+                iconEl.style.fontSize = '64px';
+                iconEl.textContent = badge.icon;
+            }
+        }
+
+        function closeCelebration() {
+            window.location.href = 'achievements.html'; // clear params and show gallery
         }
     </script>
 </body>

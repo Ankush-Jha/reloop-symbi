@@ -118,7 +118,14 @@ const DatabaseService = {
             return {
                 id: doc.id,
                 ...data,
-                seller: { id: data.sellerId, name: seller.name, avatar: seller.avatar, campus: seller.campus }
+                seller: {
+                    id: data.sellerId,
+                    name: seller.name,
+                    avatar: seller.avatar,
+                    campus: seller.campus,
+                    co2Saved: seller.co2Saved || 0,
+                    itemsTraded: seller.itemsTraded || 0
+                }
             };
         } catch (error) {
             console.error('Error getting listing:', error);
@@ -555,6 +562,55 @@ const DatabaseService = {
         } catch (error) {
             console.error('Error adding coins:', error);
             return { success: false, error: error.message };
+        }
+    },
+    // ============ NOTIFICATIONS ============
+
+    // Get user notifications
+    async getNotifications(userId) {
+        if (!userId) return [];
+
+        try {
+            const snapshot = await db.collection('users').doc(userId)
+                .collection('notifications')
+                .orderBy('createdAt', 'desc')
+                .limit(20)
+                .get();
+
+            if (snapshot.empty) {
+                // Return some mock notifications for demo if empty
+                return [
+                    {
+                        id: 'demo1',
+                        type: 'alert', // trade, recycle, alert, coins
+                        title: 'Welcome to ReLoop!',
+                        message: 'Start by scanning your first item.',
+                        createdAt: firebase.firestore.Timestamp.now(),
+                        read: false
+                    }
+                ];
+            }
+
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.error('Error getting notifications:', error);
+            return [];
+        }
+    },
+
+    // Mark notification as read
+    async markNotificationRead(userId, notificationId) {
+        try {
+            await db.collection('users').doc(userId)
+                .collection('notifications').doc(notificationId)
+                .update({ read: true });
+            return true;
+        } catch (error) {
+            console.error('Error marking notification read:', error);
+            return false;
         }
     }
 };

@@ -441,7 +441,7 @@
                 // Render conversations with role indicator
                 chatList.innerHTML = conversations.map((conv, index) => {
                     const timeAgo = formatTimeAgo(conv.lastMessageAt?.toDate());
-                    const isUnread = index < 2; // Demo: first 2 are unread
+                    const isUnread = false; // TODO: Implement real unread status
                     const roleLabel = conv.role === 'buying' ? '🛒 Buying' : '💰 Selling';
                     const listingImage = conv.listing?.images?.[0] || 'https://via.placeholder.com/40';
                     const listingTitle = conv.listing?.title || 'Item';

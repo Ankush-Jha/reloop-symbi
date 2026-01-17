@@ -195,100 +195,9 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Today -->
-            <div class="section-header">Today</div>
-
-            <div class="notification-item unread stagger-item">
-                <div class="notification-icon trade">
-                    <span class="material-symbols-outlined icon">swap_horiz</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">@StudentJane accepted your trade request!</div>
-                    <div class="notification-time">2 minutes ago</div>
-                </div>
-                <div class="notification-product">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOZLbQifWnnYreCLEPRRXYOgzNYuIJC4xQEp-JQfLaHVnfmh7ZAdk15-aNDuU0RPAemdPt7nAAjh3llfm0LG2xKLXs49cIEsbH2e8PqV3IK15t3n9H7GwTmtcsexm9BYgnT-tRBXW6WMPkE9gPXhVMTkBr3qTmEeFDgb5IYE_bPeeVLgQTcdoNR3tRR8LNBihFnfE73hPE7LdYWDSS5LfHzCUPaMF405A4BjVyBH8x2eUZK1NBupbH02J9j1WolQ0l52EeOiQy2dw"
-                        alt="Jacket">
-                </div>
-            </div>
-
-            <a href="../rewards/redeem.html" class="notification-item unread stagger-item"
-                style="text-decoration: none; color: inherit;">
-                <div class="notification-icon coins">
-                    <span class="material-symbols-outlined icon icon-filled">eco</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">You earned 50 coins from your sale</div>
-                    <div class="notification-time">1 hour ago • Tap to redeem</div>
-                </div>
-            </a>
-
-            <div class="notification-item stagger-item">
-                <div class="notification-icon alert">
-                    <span class="material-symbols-outlined icon">schedule</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">Your "Desk Lamp" listing expires in 3 days</div>
-                    <div class="notification-time">3 hours ago</div>
-                </div>
-                <div class="notification-product">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5F0m5W-0PMtH5hrEQqlB1eXf6-tLzYLIkWJcEvaMEDN3_41LFxM2c2MdrRJ6ZqEVSFZIdPsyCizGDA07OVcYMB0YY5fLlPi8gx6Tg9990XCmzAshQLRV1UErOY4MuM3Hz-ai3x90zZh57utKBQtB28ZN98Hpa_u0pc5tXT6rdbHZQxgwHk1srCxGB-_TfX5lNSRLm0cpHOql4cV4AhmO-1fiwJez816VlMsvs5uxY9bGwn15AqhhTqy68M_ZiMC7XguN8GFGnhL0"
-                        alt="Lamp">
-                </div>
-            </div>
-
-            <!-- Yesterday -->
-            <div class="section-header">Yesterday</div>
-
-            <div class="notification-item stagger-item">
-                <div class="notification-icon recycle">
-                    <span class="material-symbols-outlined icon">local_shipping</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">Your recycling pickup has been confirmed for tomorrow, 2-4 PM</div>
-                    <div class="notification-time">Yesterday, 3:42 PM</div>
-                </div>
-            </div>
-
-            <div class="notification-item stagger-item">
-                <div class="notification-icon trade">
-                    <span class="material-symbols-outlined icon">visibility</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">Your listing got 15 views today!</div>
-                    <div class="notification-time">Yesterday, 11:00 AM</div>
-                </div>
-            </div>
-
-            <!-- This Week -->
-            <div class="section-header">This Week</div>
-
-            <div class="notification-item stagger-item">
-                <div class="notification-icon coins">
-                    <span class="material-symbols-outlined icon icon-filled">emoji_events</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">Congrats! You're now in the Top 5% of sellers 🎉</div>
-                    <div class="notification-time">3 days ago</div>
-                </div>
-            </div>
-
-            <div class="notification-item stagger-item">
-                <div class="notification-icon recycle">
-                    <span class="material-symbols-outlined icon">recycling</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">You earned 15 Recycle Credits for responsible disposal</div>
-                    <div class="notification-time">4 days ago</div>
-                </div>
-            </div>
-
-            <div class="notification-item stagger-item">
-                <div class="notification-icon trade">
-                    <span class="material-symbols-outlined icon">group</span>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">North Campus community reached 500kg waste diverted!</div>
-                    <div class="notification-time">5 days ago</div>
+            <div id="notifications-list">
+                <div class="loading-state" style="text-align: center; padding: 40px; color: var(--color-text-muted);">
+                    Loading notifications...
                 </div>
             </div>
         </main>
@@ -298,6 +207,120 @@
     <div class="noise-overlay"></div>
 
     <script src="../../js/app.js"></script>
+    <script src="../../js/services/database.js"></script>
+
+    <script>
+        async function loadNotifications() {
+            const userId = getCurrentUserId();
+            if (!userId) return;
+
+            const list = document.getElementById('notifications-list');
+
+            try {
+                const notifications = await DatabaseService.getNotifications(userId);
+
+                if (notifications.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined icon">notifications_off</span>
+                            <div class="title">No new notifications</div>
+                            <div class="description">We'll notify you when something happens!</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group by date (Today, Yesterday, Earlier)
+                const groups = {
+                    today: [],
+                    yesterday: [],
+                    earlier: []
+                };
+
+                const today = new Date().toDateString();
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayString = yesterday.toDateString();
+
+                notifications.forEach(n => {
+                    const date = n.createdAt ? n.createdAt.toDate().toDateString() : today;
+                    if (date === today) groups.today.push(n);
+                    else if (date === yesterdayString) groups.yesterday.push(n);
+                    else groups.earlier.push(n);
+                });
+
+                let html = '';
+
+                // Helper to render section
+                const renderSection = (title, items) => {
+                    if (items.length === 0) return '';
+                    return `
+                        <div class="section-header">${title}</div>
+                        ${items.map(n => {
+                        const iconMap = {
+                            trade: { icon: 'swap_horiz', class: 'trade' },
+                            recycle: { icon: 'recycling', class: 'recycle' },
+                            coins: { icon: 'eco', class: 'coins' },
+                            alert: { icon: 'notifications', class: 'alert' }
+                        };
+                        const type = iconMap[n.type] || iconMap.alert;
+                        const time = n.createdAt ? formatTimeAgo(n.createdAt.toDate()) : 'Just now';
+
+                        return `
+                                <div class="notification-item stagger-item ${!n.read ? 'unread' : ''}" onclick="markRead('${n.id}')">
+                                    <div class="notification-icon ${type.class}">
+                                        <span class="material-symbols-outlined icon">${type.icon}</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        <div class="notification-title">${n.title || n.message}</div>
+                                        <div class="notification-time">${time}</div>
+                                    </div>
+                                    ${n.image ? `
+                                        <div class="notification-product">
+                                            <img src="${n.image}" alt="Item">
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                    }).join('')}
+                    `;
+                };
+
+                html += renderSection('Today', groups.today);
+                html += renderSection('Yesterday', groups.yesterday);
+                html += renderSection('Earlier', groups.earlier);
+
+                list.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                list.innerHTML = '<div class="error-msg" style="text-align:center; padding: 20px;">Failed to load notifications</div>';
+            }
+        }
+
+        async function markRead(id) {
+            const userId = getCurrentUserId();
+            if (userId && id) {
+                await DatabaseService.markNotificationRead(userId, id);
+                // remove unread class visually
+                event.currentTarget.classList.remove('unread');
+            }
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000); // seconds
+
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) loadNotifications();
+        });
+    </script>
 </body>
 
 </html>

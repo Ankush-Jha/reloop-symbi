@@ -401,6 +401,36 @@
                 </div>
             </div>
 
+            <!-- Developer Options -->
+            <div class="settings-group stagger-item">
+                <div class="group-title">Developer Options</div>
+                <div class="settings-list">
+                    <div class="settings-item" onclick="MockDataManager.seedAll()">
+                        <div class="settings-icon" style="background: rgba(46, 184, 103, 0.1);">
+                            <span class="material-symbols-outlined icon"
+                                style="color: var(--color-primary);">database</span>
+                        </div>
+                        <div class="settings-content">
+                            <div class="settings-label">Seed Test Data</div>
+                            <div class="settings-description">Add mock users and listings</div>
+                        </div>
+                        <span class="material-symbols-outlined settings-arrow"
+                            style="color: var(--color-primary);">add_circle</span>
+                    </div>
+                    <!--
+                    <div class="settings-item" onclick="MockDataManager.clearAll()">
+                        <div class="settings-icon" style="background: rgba(239, 68, 68, 0.1);">
+                            <span class="material-symbols-outlined icon" style="color: var(--color-error);">delete_forever</span>
+                        </div>
+                        <div class="settings-content">
+                            <div class="settings-label">Clear All Data</div>
+                            <div class="settings-description">Delete local and remote data</div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+            </div>
+
             <!-- Version Info -->
             <div class="version-info">
                 <div class="logo">ReLoop</div>
@@ -417,6 +447,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="../../js/firebase-config.js"></script>
     <script src="../../js/services/auth.js"></script>
+    <script src="../../js/services/mock-data-manager.js"></script>
     <script src="../../js/app.js"></script>
 
     <script>

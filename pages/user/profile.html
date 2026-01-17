@@ -409,23 +409,23 @@
             <div class="stats-grid">
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">shopping_bag</span>
-                    <div class="stat-value">-</div>
+                    <div class="stat-value" id="stat-items-sold">-</div>
                     <div class="stat-label">Items Sold</div>
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">recycling</span>
-                    <div class="stat-value">-</div>
+                    <div class="stat-value" id="stat-co2">-</div>
                     <div class="stat-label">Waste Diverted</div>
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">savings</span>
-                    <div class="stat-value">-</div>
-                    <div class="stat-label">Earned</div>
+                    <div class="stat-value" id="stat-earned">-</div>
+                    <div class="stat-label">Balance</div>
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">emoji_events</span>
-                    <div class="stat-value">-</div>
-                    <div class="stat-label">Seller Rank</div>
+                    <div class="stat-value" id="stat-rank">-</div>
+                    <div class="stat-label">Global Rank</div>
                 </div>
             </div>
 
@@ -597,18 +597,34 @@
                 const user = userDoc.data();
 
                 // Update UI concurrently
-                requestAnimationFrame(() => {
+                requestAnimationFrame(async () => {
                     document.querySelector('.username').textContent = `@${user.name || 'User'}`;
                     const coinValue = document.querySelector('.coin-value');
                     if (coinValue) coinValue.textContent = user.coins || 0;
 
-                    const statValues = document.querySelectorAll('.stat-card .stat-value');
-                    if (statValues.length >= 4) {
-                        statValues[0].textContent = user.itemsTraded || 0;
-                        statValues[1].textContent = `${user.co2Saved || 0}kg`;
+                    // Stats
+                    const itemsEl = document.getElementById('stat-items-sold');
+                    const co2El = document.getElementById('stat-co2');
+                    const earnedEl = document.getElementById('stat-earned');
+                    const rankEl = document.getElementById('stat-rank');
+
+                    if (itemsEl) itemsEl.textContent = user.itemsTraded || 0;
+                    if (co2El) co2El.textContent = `${user.co2Saved || 0}kg`;
+                    if (earnedEl) earnedEl.textContent = user.coins || 0;
+
+                    // Rank fetch
+                    if (rankEl) {
+                        try {
+                            const rankData = await GamificationService.getUserRank(userId);
+                            rankEl.textContent = rankData.rank ? `#${rankData.rank}` : '-';
+                        } catch (e) {
+                            rankEl.textContent = '-';
+                        }
                     }
+
                     if (user.avatar) {
-                        document.querySelector('.user-avatar img').src = user.avatar;
+                        const avatarImg = document.querySelector('.user-avatar img');
+                        if (avatarImg) avatarImg.src = user.avatar;
                     }
                 });
 

@@ -426,12 +426,12 @@
                 </div>
                 <div class="seller-stats">
                     <div class="stat-item">
-                        <div class="stat-value">15kg</div>
+                        <div class="stat-value" id="seller-co2">...</div>
                         <div class="stat-label">CO2 Saved</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">98%</div>
-                        <div class="stat-label">Rating</div>
+                        <div class="stat-value" id="seller-trades">...</div>
+                        <div class="stat-label">Trades</div>
                     </div>
                 </div>
             </div>
@@ -534,6 +534,28 @@
                 // Update seller info
                 if (listing.seller) {
                     document.querySelector('.seller-name').textContent = `@${listing.seller.name || 'Seller'}`;
+
+                    // Avatar
+                    const avatarImg = document.querySelector('.seller-avatar img');
+                    if (avatarImg && listing.seller.avatar) {
+                        avatarImg.src = listing.seller.avatar;
+                    }
+
+                    // Badge/Campus (reusing badge slot for campus or verification)
+                    const badgeEl = document.querySelector('.seller-badge');
+                    if (badgeEl) {
+                        badgeEl.innerHTML = `
+                            <span class="material-symbols-outlined icon icon-filled">location_on</span>
+                            ${listing.seller.campus || 'Campus'}
+                        `;
+                    }
+
+                    // Stats
+                    const co2El = document.getElementById('seller-co2');
+                    const tradesEl = document.getElementById('seller-trades');
+
+                    if (co2El) co2El.textContent = (listing.seller.co2Saved || 0) + 'kg';
+                    if (tradesEl) tradesEl.textContent = listing.seller.itemsTraded || 0;
                 }
 
                 console.log('Loaded listing:', listing);
@@ -599,11 +621,11 @@
                 }
             } catch (error) {
                 console.error('[RequestTrade] Error:', error);
-                
+
                 // Detailed error logging
                 if (window.db) console.log('[RequestTrade] DB status: Connected');
                 else console.error('[RequestTrade] DB status: Missing window.db');
-                
+
                 showToast('Failed to send trade request: ' + (error.message || 'Unknown error'));
                 btn.disabled = false;
                 btnText.textContent = 'Request Trade';

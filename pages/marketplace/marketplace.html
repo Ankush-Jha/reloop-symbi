@@ -614,49 +614,10 @@
                         Last Chance Deals
                     </span>
                 </div>
-                <div class="deals-row">
-                    <a href="item-lamp.html" class="deal-card stagger-item">
-                        <div class="deal-image-container">
-                            <img class="deal-image" src="../../images/desk-lamp.png" alt="Study Lamp">
-                            <span class="deal-badge">
-                                <span class="material-symbols-outlined icon">schedule</span>
-                                2 days left
-                            </span>
-                            <span class="deal-discount">-40%</span>
-                        </div>
-                        <div class="deal-content">
-                            <div class="deal-title">Study Lamp</div>
-                            <div class="deal-price">25 coins <span class="deal-original-price">45</span></div>
-                        </div>
-                    </a>
-                    <a href="item-books.html" class="deal-card stagger-item">
-                        <div class="deal-image-container">
-                            <img class="deal-image" src="../../images/study-books.png" alt="NCERT Books">
-                            <span class="deal-badge">
-                                <span class="material-symbols-outlined icon">schedule</span>
-                                5 hrs left
-                            </span>
-                            <span class="deal-discount">-50%</span>
-                        </div>
-                        <div class="deal-content">
-                            <div class="deal-title">NCERT Set</div>
-                            <div class="deal-price">40 coins <span class="deal-original-price">80</span></div>
-                        </div>
-                    </a>
-                    <a href="item-kettle.html" class="deal-card stagger-item">
-                        <div class="deal-image-container">
-                            <img class="deal-image" src="../../images/electric-kettle.png" alt="Electric Kettle">
-                            <span class="deal-badge">
-                                <span class="material-symbols-outlined icon">schedule</span>
-                                1 day left
-                            </span>
-                            <span class="deal-discount">-30%</span>
-                        </div>
-                        <div class="deal-content">
-                            <div class="deal-title">Electric Kettle</div>
-                            <div class="deal-price">35 coins <span class="deal-original-price">50</span></div>
-                        </div>
-                    </a>
+                <div class="deals-row" id="deals-grid">
+                    <!-- Dynamic Deals will be loaded here -->
+                    <div style="width:100%; text-align:center; padding:20px; color:var(--color-text-muted);">Loading
+                        deals...</div>
                 </div>
             </section>
 
@@ -797,7 +758,10 @@
 
         // Load listings on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadListings();
+            await Promise.all([
+                loadListings(),
+                loadDeals()
+            ]);
         });
 
         // Load listings from Firestore
@@ -909,6 +873,47 @@
                                 ${listing.condition || 'Good'}
                             </span>
                         </div>
+                    </div>
+                </a>
+            `;
+        }
+
+        // Render listings to the grid
+        async function loadDeals() {
+            try {
+                // For now, just take 3 random or recent listings from the same source
+                // In a real app, this would query a specific 'on_sale' or 'expiring_soon' index
+                const deals = await DatabaseService.getListings({ limit: 3 });
+                const container = document.getElementById('deals-grid');
+
+                if (container && deals.length > 0) {
+                    container.innerHTML = deals.map(listing => createDealCard(listing)).join('');
+                } else if (container) {
+                    container.innerHTML = '<div style="padding:15px; color:var(--color-text-muted);">No active deals</div>';
+                }
+            } catch (error) {
+                console.error('Error loading deals:', error);
+            }
+        }
+
+        function createDealCard(listing) {
+            // Mock discount logic for visual flair
+            const discount = Math.floor(Math.random() * 30) + 10;
+            const originalPrice = Math.floor(listing.price * (1 + discount / 100));
+
+            return `
+                <a href="item.html?id=${listing.id}" class="deal-card stagger-item">
+                    <div class="deal-image-container">
+                        <img class="deal-image" src="${listing.images?.[0] || '../../images/placeholder.png'}" alt="${listing.title}">
+                        <span class="deal-badge">
+                            <span class="material-symbols-outlined icon">schedule</span>
+                            ${Math.floor(Math.random() * 3) + 1} days left
+                        </span>
+                        <span class="deal-discount">-${discount}%</span>
+                    </div>
+                    <div class="deal-content">
+                        <div class="deal-title">${listing.title}</div>
+                        <div class="deal-price">${listing.price} coins <span class="deal-original-price">${originalPrice}</span></div>
                     </div>
                 </a>
             `;
