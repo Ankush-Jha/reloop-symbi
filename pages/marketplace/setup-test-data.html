@@ -124,6 +124,12 @@
     </div>
 
     <div class="card">
+        <h2>Global Mock Data</h2>
+        <p>Populate ALL users with mock stats and create fake leaderboard entries.</p>
+        <button onclick="seedAllUsers()" style="background: #9C27B0; color: white;">Seed Everyone</button>
+    </div>
+
+    <div class="card">
         <h2>Debug Actions</h2>
         <button onclick="checkConversations()">Check My Conversations</button>
         <button onclick="checkListings()">Check All Listings</button>
@@ -258,6 +264,64 @@
                 });
             } catch (error) {
                 log(`❌ Error checking listings: ${error.message}`, 'error');
+            }
+        }
+
+        // Seed ALL Users with Mock Data (for demo "rich" look)
+        async function seedAllUsers() {
+            try {
+                const logs = document.getElementById('log');
+                log('Starting global seeding...', 'info');
+
+                // 1. Update Existing Users
+                const usersSnapshot = await db.collection('users').get();
+                const totalUsers = usersSnapshot.size;
+                log(`Found ${totalUsers} existing users. Updating...`, 'info');
+
+                const updates = usersSnapshot.docs.map(doc => {
+                    return doc.ref.update({
+                        itemsTraded: 12,
+                        co2Saved: 24.5,
+                        coins: 850,
+                        xp: 2450, // Enough for Level 8
+                        messagesSent: 5,
+                        itemsScanned: 8,
+                        level: 8
+                    });
+                });
+
+                await Promise.all(updates);
+                log('All existing users updated with mock stats.', 'success');
+
+                // 2. Create Fake Leaderboard Users
+                const fakeUsers = [
+                    { id: 'fake_user_1', name: 'GreenQueen', xp: 12500, coins: 5000, itemsTraded: 45, co2Saved: 120, level: 16 },
+                    { id: 'fake_user_2', name: 'EcoMaster', xp: 9800, coins: 3200, itemsTraded: 30, co2Saved: 85, level: 14 },
+                    { id: 'fake_user_3', name: 'RecycleRocky', xp: 7500, coins: 2100, itemsTraded: 25, co2Saved: 60, level: 12 },
+                    { id: 'fake_user_4', name: 'PlanetPat', xp: 5200, coins: 1500, itemsTraded: 18, co2Saved: 40, level: 11 },
+                    { id: 'fake_user_5', name: 'SustainableSam', xp: 3300, coins: 900, itemsTraded: 15, co2Saved: 30, level: 9 }
+                ];
+
+                const fakeUpdates = fakeUsers.map(user => {
+                    return db.collection('users').doc(user.id).set({
+                        name: user.name,
+                        xp: user.xp,
+                        coins: user.coins,
+                        itemsTraded: user.itemsTraded,
+                        co2Saved: user.co2Saved,
+                        level: user.level,
+                        photoURL: `https://ui-avatars.com/api/?name=${user.name}&background=random`,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                await Promise.all(fakeUpdates);
+                log('Created 5 fake leaderboard users.', 'success');
+                log('GLOBAL SEEDING COMPLETE!', 'success');
+
+            } catch (error) {
+                console.error("Seeding Error:", error);
+                log(`Error: ${error.message}`, 'error');
             }
         }
 
