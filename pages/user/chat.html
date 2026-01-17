@@ -300,20 +300,309 @@
 
         <!-- Chat Input Area -->
         <div class="chat-input-area">
-            <div class="quick-actions">
-                <button class="quick-action-btn">📍 Share Location</button>
-                <button class="quick-action-btn">✅ Confirm Trade</button>
+            <div class="quick-actions" id="quick-actions">
+                <button class="quick-action-btn" onclick="shareLocation()">📍 Share Location</button>
+                <button id="qr-btn" class="quick-action-btn" style="display: none;" onclick="showTradeQR()">🔐 Show
+                    QR</button>
+                <button id="scan-btn" class="quick-action-btn" style="display: none;" onclick="openScanPage()">📷 Scan
+                    QR</button>
+                <button id="confirm-btn" class="quick-action-btn" style="display: none;" onclick="confirmTrade()">✅
+                    Confirm Trade</button>
             </div>
             <div class="chat-input-row">
-                <input type="text" class="chat-input" placeholder="Type a message...">
-                <button class="send-btn">
+                <input type="text" id="message-input" class="chat-input" placeholder="Type a message..."
+                    onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">
                     <span class="material-symbols-outlined icon">send</span>
                 </button>
             </div>
         </div>
     </div>
     <div class="noise-overlay"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/services/database.js"></script>
     <script src="../../js/app.js"></script>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="../../js/services/qrcode-service.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const conversationId = urlParams.get('id');
+        let unsubscribe = null;
+        let currentUserId = null;
+        let currentTradeId = null;
+        let userRole = null; // 'buyer' or 'seller'
+
+        // Load conversation and messages
+        async function loadChat() {
+            if (!conversationId) {
+                console.log('No conversation ID, showing demo');
+                return;
+            }
+
+            currentUserId = getCurrentUserId();
+            if (!currentUserId) {
+                console.log('Not logged in');
+                return;
+            }
+
+            try {
+                // Get conversation details
+                const convDoc = await db.collection('conversations').doc(conversationId).get();
+                if (!convDoc.exists) {
+                    showToast('Conversation not found');
+                    return;
+                }
+
+                const conv = convDoc.data();
+                const otherUserId = conv.participants.find(id => id !== currentUserId);
+
+                // Get other user info
+                const otherUserDoc = await db.collection('users').doc(otherUserId).get();
+                const otherUser = otherUserDoc.exists ? otherUserDoc.data() : { name: 'User' };
+
+                // Update header
+                document.querySelector('.chat-header-name').textContent = `@${otherUser.name || 'User'}`;
+                if (otherUser.avatar) {
+                    document.querySelector('.chat-header-avatar img').src = otherUser.avatar;
+                }
+
+                // Get listing info if available
+                if (conv.listingId) {
+                    const listingDoc = await db.collection('listings').doc(conv.listingId).get();
+                    if (listingDoc.exists) {
+                        const listing = listingDoc.data();
+                        document.querySelector('.product-preview-title').textContent = listing.title;
+                        document.querySelector('.product-preview-price').textContent = `${listing.price} Coins`;
+                        if (listing.images && listing.images.length > 0) {
+                            document.querySelector('.product-preview-image img').src = listing.images[0];
+                        }
+                    }
+                }
+
+                // Subscribe to messages
+                subscribeToMessages();
+
+            } catch (error) {
+                console.error('Error loading chat:', error);
+            }
+        }
+
+        // Subscribe to real-time messages
+        function subscribeToMessages() {
+            const messagesContainer = document.querySelector('.chat-messages');
+
+            unsubscribe = db.collection('conversations').doc(conversationId)
+                .collection('messages')
+                .orderBy('createdAt', 'asc')
+                .onSnapshot(snapshot => {
+                    // Keep the date divider
+                    messagesContainer.innerHTML = '<div class="date-divider">Today</div>';
+
+                    snapshot.docs.forEach(doc => {
+                        const msg = doc.data();
+                        const isSent = msg.senderId === currentUserId;
+                        const time = msg.createdAt?.toDate();
+                        const timeStr = time ? time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'Now';
+
+                        messagesContainer.innerHTML += `
+                            <div class="message ${isSent ? 'sent' : 'received'}">
+                                <p>${escapeHtml(msg.text)}</p>
+                                <div class="message-time">${timeStr}</div>
+                            </div>
+                        `;
+                    });
+
+                    // Auto-scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+
+            if (!text || !conversationId) return;
+
+            input.value = '';
+
+            try {
+                await DatabaseService.sendMessage(conversationId, text);
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showToast('Failed to send message');
+            }
+        }
+
+        // Handle enter key
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Quick actions
+        function shareLocation() {
+            sendQuickMessage('📍 Let\'s meet at the campus center!');
+        }
+
+        async function confirmTrade() {
+            if (!conversationId) return;
+
+            try {
+                // Get the trade associated with this conversation
+                const convDoc = await db.collection('conversations').doc(conversationId).get();
+                if (!convDoc.exists) return;
+
+                const conv = convDoc.data();
+
+                // Find the trade
+                const trades = await db.collection('trades')
+                    .where('listingId', '==', conv.listingId)
+                    .get();
+
+                if (trades.empty) {
+                    showToast('No pending trade found');
+                    return;
+                }
+
+                const trade = trades.docs[0];
+                const tradeData = trade.data();
+
+                // Only seller can confirm
+                if (tradeData.sellerId !== currentUserId) {
+                    showToast('Only the seller can confirm the trade');
+                    return;
+                }
+
+                // Check if QR was verified (skip for now, can add verification check here)
+                // For now, we'll proceed with the confirmation
+
+                const result = await DatabaseService.acceptTrade(trade.id);
+                if (result.success) {
+                    sendQuickMessage('✅ Trade confirmed! Thanks for trading on ReLoop! 🎉');
+                    showToast('Trade completed successfully!');
+                } else {
+                    showToast(result.error || 'Failed to confirm trade');
+                }
+            } catch (error) {
+                console.error('Error confirming trade:', error);
+                showToast('Failed to confirm trade');
+            }
+        }
+
+        // Show QR code for buyer
+        async function showTradeQR() {
+            if (!currentTradeId || userRole !== 'buyer') {
+                showToast('Only the buyer can show the verification QR');
+                return;
+            }
+
+            try {
+                await QRCodeService.showQRModal(currentTradeId, currentUserId);
+                sendQuickMessage('🔐 I\'ve generated my verification QR code. Ready when you are!');
+            } catch (error) {
+                console.error('Error showing QR:', error);
+                showToast('Failed to generate QR code');
+            }
+        }
+
+        // Open QR scanner page for seller
+        function openScanPage() {
+            if (!currentTradeId || userRole !== 'seller') {
+                showToast('Only the seller can scan the QR code');
+                return;
+            }
+            window.location.href = `verify-trade.html?tradeId=${currentTradeId}`;
+        }
+
+        // Update quick action buttons based on role
+        function updateQuickActions() {
+            const qrBtn = document.getElementById('qr-btn');
+            const scanBtn = document.getElementById('scan-btn');
+            const confirmBtn = document.getElementById('confirm-btn');
+
+            if (userRole === 'buyer') {
+                qrBtn.style.display = 'inline-flex';
+                scanBtn.style.display = 'none';
+                confirmBtn.style.display = 'none';
+            } else if (userRole === 'seller') {
+                qrBtn.style.display = 'none';
+                scanBtn.style.display = 'inline-flex';
+                confirmBtn.style.display = 'inline-flex';
+            }
+        }
+
+        // Get trade info when loading chat
+        async function loadTradeInfo() {
+            if (!conversationId) return;
+
+            try {
+                const convDoc = await db.collection('conversations').doc(conversationId).get();
+                if (!convDoc.exists) return;
+
+                const conv = convDoc.data();
+
+                // Determine role
+                userRole = conv.buyerId === currentUserId ? 'buyer' : 'seller';
+                console.log('[Chat] User role:', userRole);
+
+                // Find the trade
+                const trades = await db.collection('trades')
+                    .where('listingId', '==', conv.listingId)
+                    .where('status', '==', 'pending')
+                    .get();
+
+                if (!trades.empty) {
+                    currentTradeId = trades.docs[0].id;
+                    console.log('[Chat] Trade ID:', currentTradeId);
+                }
+
+                updateQuickActions();
+            } catch (error) {
+                console.error('Error loading trade info:', error);
+            }
+        }
+
+        async function sendQuickMessage(text) {
+            if (!conversationId) return;
+            try {
+                await DatabaseService.sendMessage(conversationId, text);
+            } catch (error) {
+                console.error('Error sending quick message:', error);
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (unsubscribe) unsubscribe();
+        });
+
+        // Load on auth state change
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                console.log('User logged in:', user.uid);
+                loadChat();
+                // Load trade info after a small delay to ensure chat is loaded
+                setTimeout(() => loadTradeInfo(), 500);
+            }
+        });
+    </script>
 </body>
 
 </html>

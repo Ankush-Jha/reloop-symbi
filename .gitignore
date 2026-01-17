@@ -22,3 +22,6 @@ npm-debug.log*
 
 # Archive folder (design iterations, not needed in production)
 archive/
+
+# Firebase
+.firebase/

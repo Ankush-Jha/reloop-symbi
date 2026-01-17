@@ -2,66 +2,94 @@
 
 > A mobile-first web app where college students trade, swap, and recycle items to earn eco-coins and reduce campus waste.
 
-![ReLoop Home](https://img.shields.io/badge/Status-In%20Development-green) ![HTML](https://img.shields.io/badge/HTML-5-orange) ![CSS](https://img.shields.io/badge/CSS-3-blue) ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+![ReLoop Home](https://img.shields.io/badge/Status-Beta-green) ![Firebase](https://img.shields.io/badge/Firebase-Database%20%26%20Auth-orange) ![Cloudflare Workers](https://img.shields.io/badge/AI-Llama%203.2-blue) ![Netlify](https://img.shields.io/badge/Hosting-Netlify-00C7B7)
 
 ---
 
-## 🎬 Demo
+## 🚀 Key Features
 
-### Onboarding Flow
-<p align="center">
-  <img src="assets/recordings/onboarding_flow.webp" width="300" alt="Onboarding Flow Demo"/>
-</p>
+### 🛒 Campus Marketplace
+- **Scope-Separated Listings**: Distinct "Your Marketplace" vs "Near You" sections.
+- **Smart Filtering**: Filter by Price, Condition, and Category.
+- **Efficient Search**: Debounced search for instant results.
+- **Lazy Loading**: Optimized image loading for performance.
 
-*Navigate through the beautiful onboarding experience - from welcome slides to the home dashboard.*
+### 🔍 AI Item Scanner (Powered by Cloudflare Workers AI)
+- **Instant Analysis**: Scans items using **Llama 3.2 11B Vision**.
+- **Upcycle Ideas**: Generates 3 unique DIY upcycle ideas per item.
+- **Resource Links**: Direct links to YouTube and Pinterest for each idea.
+- **Eco-Estimates**: Automatically estimates CO2 saved and coin value.
 
-### AI Scanning & Recommendations
-<p align="center">
-  <img src="assets/recordings/scanning_ai_flow.webp" width="300" alt="Scanning AI Flow Demo"/>
-</p>
+### 🏆 Gamification
+- **Daily Missions**: Complete tasks (Scan, Trade, Share) to earn XP.
+- **Leveling System**: 20 levels from "Rookie Recycler" to "Eco Master".
+- **Dynamic Leaderboard**: Compete on XP and Carbon Saved rankings.
+- **Badges**: Unlockable achievements (e.g., "First Trade", "Scanner Pro").
 
-*Scan items with AI to get upcycling ideas, recycling info, and trade recommendations.*
+### 📊 Delight Features
+- **Eco-Wrapped**: A Spotify-Wrapped style year-in-review for your impact.
+- **Social Sharing**: Share your stats and missions natively.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Usage |
+|-------|------------|-------|
+| **Frontend** | Vanilla JS, HTML5, CSS3 | Zero-build framework for speed |
+| **Backend** | Firebase (Firestore, Auth) | Real-time database & auth |
+| **AI** | Cloudflare Workers + Llama | Serverless AI image analysis |
+| **Hosting** | Netlify | Fast global CDN hosting |
+| **Styling** | Custom CSS Variables | Consistent design system |
 
 ---
 
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="images/screenshot-home.png" width="200" alt="Home"/>
-  <img src="images/screenshot-marketplace.png" width="200" alt="Marketplace"/>
-  <img src="images/screenshot-profile.png" width="200" alt="Profile"/>
+  <img src="https://via.placeholder.com/200x400?text=Home" width="200" alt="Home"/>
+  <img src="https://via.placeholder.com/200x400?text=Marketplace" width="200" alt="Marketplace"/>
+  <img src="https://via.placeholder.com/200x400?text=Scanner" width="200" alt="Scanner"/>
 </p>
 
-
 ---
 
-## 🚀 Quick Start
+## 🏃‍♂️ Quick Start
+
+### Prerequisites
+- Node.js & npm (for local dev)
+- A Firebase Project (for Database/Auth)
+- A Cloudflare Workers Account (for AI)
+
+### Installation
 
 ```bash
-# Clone the repo
-git clone https://github.com/Ankush-Jha/unscraped.git
-cd unscraped
+# 1. Clone the repo
+git clone https://github.com/Ankush-Jha/reloop-webapp.git
+cd reloop-webapp
 
-# Serve locally (pick one)
-npx serve -p 3000        # Using npx
-python -m http.server 3000   # Using Python
-open index.html          # Or just open in browser
+# 2. Setup Firebase Config
+# Rename js/firebase-config.example.js to js/firebase-config.js
+# Add your Firebase credentials
 
-# Visit
-http://localhost:3000
+# 3. Serve Locally
+npx serve .
+# OR
+python -m http.server 3000
 ```
 
----
+### Deploying (Netlify)
 
-## 🛠️ Tech Stack
+1.  **Push to GitHub**: Make sure your latest code is on GitHub.
+2.  **Log in to Netlify**: Go to [netlify.com](https://netlify.com) and sign in.
+3.  **New Site from Git**: Click "Add new site" > "Import an existing project".
+4.  **Connect Repo**: Select your `reloop-webapp` repository.
+5.  **Build Settings**:
+    *   **Build command**: *(Leave empty)*
+    *   **Publish directory**: `.` (or leave empty to publish root)
+6.  **Deploy**: Click "Deploy site".
 
-| Layer | Tech |
-|-------|------|
-| **Frontend** | HTML5, CSS3 (vanilla), JavaScript ES6 |
-| **Styling** | Custom CSS with CSS variables, Tailwind (wrapped.html) |
-| **Icons** | Material Symbols Outlined |
-| **Fonts** | Space Grotesk, Manrope, Bebas Neue |
-| **Hosting** | Static files (GitHub Pages compatible) |
+*Your app is now live on a Netlify URL!*
 
 ---
 
@@ -69,70 +97,21 @@ http://localhost:3000
 
 ```
 reloop/
-├── index.html                      # Entry point (redirects to onboarding)
-│
-├── 📁 pages/
-│   ├── 🏠 core/                    # Main pages
-│   │   ├── home.html               # Dashboard
-│   │   ├── onboarding.html         # Welcome flow
-│   │   └── search.html             # Search
-│   │
-│   ├── 🛒 marketplace/             # Trading
-│   │   ├── marketplace.html        # Browse items
-│   │   ├── item.html               # Item template
-│   │   ├── item-*.html             # Specific items
-│   │   ├── trade.html              # Trade confirmation
-│   │   └── create-listing.html     # List new item
-│   │
-│   ├── 🔍 scanner/                 # AI features
-│   │   ├── scanning.html           # AI analysis animation
-│   │   ├── scan1.html              # Scan results summary
-│   │   ├── scan2.html              # Detailed ideas
-│   │   ├── result.html             # Static result
-│   │   ├── recycle.html            # Recycling info
-│   │   └── upcycle.html            # Upcycling guide
-│   │
-│   ├── 🏆 gamification/            # Game features
-│   │   ├── missions.html           # Daily missions
-│   │   ├── achievements.html       # Badges
-│   │   ├── leaderboard.html        # Campus rankings
-│   │   ├── level-up.html           # Level celebration
-│   │   └── wrapped.html            # Eco Wrapped stats
-│   │
-│   ├── 👤 user/                    # User pages
-│   │   ├── profile.html            # User profile
-│   │   ├── settings.html           # App settings
-│   │   ├── notifications.html      # Notifications
-│   │   ├── messages.html           # Chat list
-│   │   └── chat.html               # Chat view
-│   │
-│   ├── 📖 stories/                 # Success stories
-│   │   ├── success-stories.html    # All stories
-│   │   └── story-*.html            # Individual stories
-│   │
-│   └── 🪙 rewards/
-│       └── redeem.html             # Coin redemption
-│
-├── 📁 css/
-│   └── styles.css                  # Global styles
-│
+├── 📁 cf-worker/               # Cloudflare Worker AI logic
+├── 📁 css/                     # Global styles
 ├── 📁 js/
-│   └── app.js                      # Main JavaScript
-│
-├── 📁 images/                      # All images
-│
-└── README.md
+│   ├── app.js                  # Main logic
+│   └── 📁 services/            # Core Services
+│       ├── database.js         # Firestore Wrapper
+│       ├── gamification.js     # XP, Levels, Missions Logic
+│       └── scanner.js          # AI Integration
+├── 📁 pages/
+│   ├── 🛒 marketplace/         # Trading Board
+│   ├── 🏆 gamification/        # Leaderboard, Missions, Wrapped
+│   ├── 🔍 scanner/             # AI Camera & Results
+│   └── 👤 user/                # Profile & Settings
+└── firestore.rules             # Database Security
 ```
-
----
-
-## ✨ Features
-
-- **🔍 AI Item Scanner** - Scan items to get upcycle ideas and coin estimates
-- **🛒 Marketplace** - Browse and trade items with other students
-- **🪙 Eco Coins** - Earn coins for trades, redeem for campus rewards
-- **🏆 Gamification** - Daily missions, achievements, campus leaderboard
-- **📊 Eco Wrapped** - Your sustainability stats, Spotify-Wrapped style
 
 ---
 

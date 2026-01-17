@@ -556,7 +556,159 @@
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
-    <script src="../../js/app.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/services/gamification.js"></script>
+
+    <script>
+        let currentSortBy = 'xp';
+
+        // Load leaderboard from Firebase
+        async function loadLeaderboard() {
+            const listContainer = document.querySelector('.leaderboard-list');
+            const topPlayerCard = document.querySelector('.top-player-card');
+
+            // Show loading state
+            listContainer.innerHTML = '<div class="loading-state" style="text-align: center; padding: var(--space-8); color: var(--color-text-muted);">Loading rankings...</div>';
+
+            try {
+                const leaderboard = await GamificationService.getLeaderboard(currentSortBy, 50);
+
+                if (leaderboard.length === 0) {
+                    listContainer.innerHTML = '<div class="empty-state" style="text-align: center; padding: var(--space-8); color: var(--color-text-muted);">No users yet. Be the first!</div>';
+                    return;
+                }
+
+                // Update top player card
+                const top = leaderboard[0];
+                document.querySelector('.top-username').textContent = top.name || 'Champion';
+                document.querySelector('.top-points .value').textContent = formatPoints(currentSortBy === 'xp' ? top.xp : top.co2Saved);
+                document.querySelector('.level-badge').textContent = `Lvl ${top.level || 1}`;
+
+                // Generate leaderboard list HTML (ranks 2-50)
+                let listHTML = '';
+                for (let i = 1; i < leaderboard.length; i++) {
+                    const player = leaderboard[i];
+                    const value = currentSortBy === 'xp' ? (player.xp || 0) : (player.co2Saved || 0);
+                    const opacity = Math.max(0.6, 1 - (i * 0.02));
+
+                    listHTML += `
+                        <div class="leaderboard-item stagger-item" style="opacity: ${opacity};">
+                            <div class="rank-number">${i + 1}</div>
+                            <div class="player-avatar">
+                                <img src="${player.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(player.name || 'User') + '&background=2eb867&color=000'}" alt="${player.name}">
+                            </div>
+                            <div class="player-info">
+                                <div class="player-name">${player.name || 'User'}</div>
+                                <div class="player-dept">${player.campus || 'ReLoop Campus'}</div>
+                            </div>
+                            <div class="player-points">
+                                <span class="material-symbols-outlined icon">${currentSortBy === 'xp' ? 'stars' : 'eco'}</span>
+                                <span class="value">${formatPoints(value)}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                listContainer.innerHTML = listHTML;
+
+                // Update current user's rank
+                await updateCurrentUserRank();
+
+                console.log('Loaded leaderboard:', leaderboard.length, 'users');
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                listContainer.innerHTML = '<div class="error-state" style="text-align: center; padding: var(--space-8); color: #ff6b6b;">Error loading rankings. Please try again.</div>';
+            }
+        }
+
+        // Update current user's rank card
+        async function updateCurrentUserRank() {
+            const userId = getCurrentUserId();
+            if (!userId) return;
+
+            try {
+                const rankData = await GamificationService.getUserRank(userId, currentSortBy);
+                const userDoc = await db.collection('users').doc(userId).get();
+
+                if (rankData && userDoc.exists) {
+                    const user = userDoc.data();
+                    document.querySelector('.your-rank-number').textContent = rankData.rank;
+                    document.querySelector('.your-points-value').textContent = formatPoints(rankData.value);
+                    document.querySelector('.your-label').textContent = user.name || 'You';
+
+                    // Update motivation message based on rank
+                    const motivation = rankData.rank <= 10 ? "You're on fire! 🔥" :
+                                      rankData.rank <= 25 ? "Almost there! 💪" :
+                                      rankData.rank <= 50 ? "Keep pushing! 🚀" :
+                                      "Keep going! 🌱";
+                    document.querySelector('.your-motivation').textContent = motivation;
+                }
+            } catch (error) {
+                console.error('Error getting user rank:', error);
+            }
+        }
+
+        // Format points
+        function formatPoints(pts) {
+            if (pts >= 1000) {
+                return (pts / 1000).toFixed(1) + 'k';
+            }
+            return pts.toString();
+        }
+
+        // Toggle sort between XP and CO2
+        function toggleSort() {
+            currentSortBy = currentSortBy === 'xp' ? 'co2Saved' : 'xp';
+            
+            // Update subtitle
+            const subtitle = document.querySelector('.leaderboard-subtitle');
+            subtitle.textContent = currentSortBy === 'xp' ? 'Top 50 by XP' : 'Top 50 by CO2 Saved';
+            
+            // Update icon in top player card
+            const topIcon = document.querySelector('.top-points .icon');
+            topIcon.textContent = currentSortBy === 'xp' ? 'trophy' : 'eco';
+
+            loadLeaderboard();
+        }
+
+        // Add sort toggle button to header
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.leaderboard-header');
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'sort-toggle-btn';
+            toggleBtn.innerHTML = '<span class="material-symbols-outlined">swap_vert</span>';
+            toggleBtn.style.cssText = `
+                position: absolute;
+                top: var(--space-6);
+                right: var(--space-4);
+                width: 40px;
+                height: 40px;
+                border-radius: var(--radius-full);
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border: 1px solid var(--color-border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--color-text-primary);
+                cursor: pointer;
+                transition: all var(--transition-base);
+            `;
+            toggleBtn.onclick = toggleSort;
+            header.appendChild(toggleBtn);
+        });
+
+        // Load on auth state change
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                loadLeaderboard();
+            }
+        });
+    </script>
 </body>
 
 </html>

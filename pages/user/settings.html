@@ -390,7 +390,7 @@
             <!-- Danger Zone -->
             <div class="settings-group stagger-item">
                 <div class="settings-list">
-                    <div class="settings-item danger-item" onclick="window.location.href='../../index.html'">
+                    <div class="settings-item danger-item" onclick="handleLogout()">
                         <div class="settings-icon">
                             <span class="material-symbols-outlined icon">logout</span>
                         </div>
@@ -404,7 +404,7 @@
             <!-- Version Info -->
             <div class="version-info">
                 <div class="logo">ReLoop</div>
-                Version 1.0.0
+                Version 1.0.0 (MVP)
             </div>
         </main>
     </div>
@@ -412,7 +412,23 @@
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/services/auth.js"></script>
     <script src="../../js/app.js"></script>
+
+    <script>
+        async function handleLogout() {
+            const result = await AuthService.signOut();
+            if (result.success) {
+                window.location.href = '../../index.html';
+            } else {
+                alert('Logout failed. Please try again.');
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -373,6 +373,30 @@
             color: var(--color-text-muted);
             margin-bottom: var(--space-6);
         }
+
+        .search-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-top: 4px;
+        }
+
+        .search-link.yt {
+            background: #ff000020;
+            color: #ff0000;
+        }
+
+        .search-link.pin {
+            background: #E6002320;
+            color: #E60023;
+        }
     </style>
 </head>
 
@@ -441,7 +465,15 @@
                         </div>
                         <div style="flex: 1;">
                             <div class="idea-title">${idea.title}</div>
-                            <div class="idea-desc">${idea.description}</div>
+                            <div class="idea-desc" style="margin-bottom: 8px;">${idea.description || ''}</div>
+                            <div class="idea-actions">
+                                <a href="https://www.youtube.com/results?search_query=DIY+${encodeURIComponent(idea.title)}+${encodeURIComponent(result.objectName)}" target="_blank" class="search-link yt">
+                                    <span class="material-symbols-outlined icon" style="font-size: 14px;">play_circle</span> Watch
+                                </a>
+                                <a href="https://www.pinterest.com/search/pins/?q=DIY+${encodeURIComponent(idea.title)}+${encodeURIComponent(result.objectName)}" target="_blank" class="search-link pin">
+                                    <span class="material-symbols-outlined icon" style="font-size: 14px;">push_pin</span> Pin
+                                </a>
+                            </div>
                         </div>
                         <span class="idea-difficulty ${difficultyClass}">${idea.difficulty}</span>
                     </div>
@@ -471,7 +503,7 @@
                 
                 <div class="item-identified fade-in">
                     <span class="item-label">AI Identified:</span>
-                    <h1 class="item-name">${result.objectName || 'Unknown Item'}</h1>
+                    <h1 class="item-name">${(typeof result.objectName === 'string' ? result.objectName : 'Scanned Item')}</h1>
                     <div class="item-details">
                         <span class="detail-tag">
                             <span class="material-symbols-outlined icon">${categoryIcon}</span>

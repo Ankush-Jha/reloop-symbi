@@ -991,6 +991,148 @@
             animation: fadeIn 0.5s ease-out;
         }
 
+        /* Auth Slide Styles */
+        .auth-container {
+            width: 100%;
+            max-width: 360px;
+            padding: 0 var(--space-4);
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+            background: var(--color-surface-dark);
+            border-radius: var(--radius-full);
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: var(--space-3);
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-size: var(--text-sm);
+            font-weight: 700;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .auth-tab.active {
+            background: var(--color-primary);
+            color: #000;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .auth-form.hidden {
+            display: none;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .form-label {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .form-input-auth {
+            width: 100%;
+            padding: var(--space-4);
+            background: var(--color-surface-dark);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            font-family: var(--font-body);
+            font-size: var(--text-base);
+            color: var(--color-text-primary);
+            transition: all var(--transition-base);
+        }
+
+        .form-input-auth:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(34, 195, 88, 0.2);
+        }
+
+        .form-input-auth::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .campus-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2322c358' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 24px;
+            padding-right: 44px;
+        }
+
+        .auth-error {
+            padding: var(--space-3);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-lg);
+            color: var(--color-error);
+            font-size: var(--text-sm);
+            display: none;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin: var(--space-4) 0;
+        }
+
+        .auth-divider span {
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .auth-loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+        }
+
+        .auth-loading.show {
+            display: flex;
+        }
+
+        .auth-loading .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--color-surface-dark);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
         /* Icon filled style */
         .icon-filled {
             font-variation-settings: 'FILL' 1;
@@ -1234,29 +1376,103 @@
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="onboarding-footer">
-                <div class="footer-content">
-                    <div class="dots-indicator">
-                        <div class="dot active" data-slide="1"></div>
-                        <div class="dot" data-slide="2"></div>
-                        <div class="dot" data-slide="3"></div>
+            <!-- Slide 4: Sign Up / Login -->
+            <div class="slide" id="slide-4">
+                <div class="slide-content">
+                    <div class="text-content" style="margin-bottom: var(--space-6);">
+                        <h1 class="slide-headline all-green" style="font-size: 2rem;">
+                            Almost There!
+                        </h1>
+                        <p class="slide-description">
+                            Create your account to start trading and saving the planet.
+                        </p>
                     </div>
-                    <button class="next-btn" id="next-btn" onclick="nextSlide()">
-                        <span id="btn-text">NEXT</span>
-                        <span class="material-symbols-outlined icon" id="btn-icon">arrow_forward</span>
-                    </button>
+
+                    <div class="auth-container">
+                        <!-- Auth Tabs -->
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" onclick="switchAuthTab('signup')">Sign Up</button>
+                            <button class="auth-tab" onclick="switchAuthTab('login')">Login</button>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="auth-error" class="auth-error"></div>
+
+                        <!-- Loading State -->
+                        <div id="auth-loading" class="auth-loading">
+                            <div class="spinner"></div>
+                            <span style="color: var(--color-text-secondary);">Creating your account...</span>
+                        </div>
+
+                        <!-- Sign Up Form (Single Campus - Hardcoded) -->
+                        <form id="signup-form" class="auth-form" onsubmit="handleSignUp(event)">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input type="text" id="signup-name" class="form-input-auth" placeholder="Your name"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="signup-email" class="form-input-auth"
+                                    placeholder="your@email.edu" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" id="signup-password" class="form-input-auth"
+                                    placeholder="Min 6 characters" minlength="6" required>
+                            </div>
+                        </form>
+
+                        <!-- Login Form -->
+                        <form id="login-form" class="auth-form hidden" onsubmit="handleLogin(event)">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="login-email" class="form-input-auth"
+                                    placeholder="your@email.edu" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" id="login-password" class="form-input-auth"
+                                    placeholder="Your password" required>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="onboarding-footer">
+            <div class="footer-content">
+                <div class="dots-indicator">
+                    <div class="dot active" data-slide="1"></div>
+                    <div class="dot" data-slide="2"></div>
+                    <div class="dot" data-slide="3"></div>
+                    <div class="dot" data-slide="4"></div>
+                </div>
+                <button class="next-btn" id="next-btn" onclick="nextSlide()">
+                    <span id="btn-text">NEXT</span>
+                    <span class="material-symbols-outlined icon" id="btn-icon">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/services/auth.js"></script>
+
     <script>
         let currentSlide = 1;
-        const totalSlides = 3;
+        const totalSlides = 4;
+        let currentAuthMode = 'signup';
 
         function updateSlide() {
             // Update slides
@@ -1280,6 +1496,9 @@
             const btnIcon = document.getElementById('btn-icon');
 
             if (currentSlide === totalSlides) {
+                btnText.textContent = currentAuthMode === 'signup' ? 'SIGN UP' : 'LOGIN';
+                btnIcon.textContent = 'login';
+            } else if (currentSlide === totalSlides - 1) {
                 btnText.textContent = 'GET STARTED';
                 btnIcon.textContent = 'rocket_launch';
             } else {
@@ -1293,14 +1512,122 @@
                 currentSlide++;
                 updateSlide();
             } else {
-                // Go to home page
-                window.location.href = 'home.html';
+                // On auth slide - submit the form
+                if (currentAuthMode === 'signup') {
+                    document.getElementById('signup-form').requestSubmit();
+                } else {
+                    document.getElementById('login-form').requestSubmit();
+                }
             }
         }
 
         function skipOnboarding() {
-            window.location.href = 'home.html';
+            // Check if user is already logged in
+            if (typeof auth !== 'undefined' && auth.currentUser) {
+                window.location.href = 'home.html';
+            } else {
+                // Skip to auth slide
+                currentSlide = totalSlides;
+                updateSlide();
+            }
         }
+
+        // Auth tab switching
+        function switchAuthTab(mode) {
+            currentAuthMode = mode;
+            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.auth-tab:${mode === 'signup' ? 'first-child' : 'last-child'}`).classList.add('active');
+
+            document.getElementById('signup-form').classList.toggle('hidden', mode !== 'signup');
+            document.getElementById('login-form').classList.toggle('hidden', mode !== 'login');
+            document.getElementById('auth-error').classList.remove('show');
+
+            updateSlide();
+        }
+
+        // Show error
+        function showAuthError(message) {
+            const errorEl = document.getElementById('auth-error');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        // Show/hide loading
+        function setAuthLoading(loading) {
+            const loadingEl = document.getElementById('auth-loading');
+            const forms = document.querySelectorAll('.auth-form');
+
+            if (loading) {
+                loadingEl.classList.add('show');
+                forms.forEach(f => f.style.display = 'none');
+            } else {
+                loadingEl.classList.remove('show');
+                document.getElementById(currentAuthMode + '-form').style.display = 'flex';
+            }
+        }
+
+        // Handle Sign Up
+        async function handleSignUp(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const campus = 'ReLoop Campus'; // Hardcoded for single-campus MVP
+
+            if (!name || !email || !password) {
+                showAuthError('Please fill in all fields');
+                return;
+            }
+
+            setAuthLoading(true);
+            document.getElementById('auth-error').classList.remove('show');
+
+            const result = await AuthService.signUp(email, password, name, campus);
+
+            if (result.success) {
+                window.location.href = 'home.html';
+            } else {
+                setAuthLoading(false);
+                showAuthError(result.error || 'Sign up failed. Please try again.');
+            }
+        }
+
+        // Handle Login
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showAuthError('Please fill in all fields');
+                return;
+            }
+
+            setAuthLoading(true);
+            document.getElementById('auth-error').classList.remove('show');
+
+            const result = await AuthService.signIn(email, password);
+
+            if (result.success) {
+                window.location.href = 'home.html';
+            } else {
+                setAuthLoading(false);
+                showAuthError(result.error || 'Login failed. Check your credentials.');
+            }
+        }
+
+        // Check if already logged in on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        window.location.href = 'home.html';
+                    }
+                });
+            }
+        });
 
         // Allow clicking on dots to navigate
         document.querySelectorAll('.dot').forEach(dot => {

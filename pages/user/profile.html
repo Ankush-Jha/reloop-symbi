@@ -409,22 +409,22 @@
             <div class="stats-grid">
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">shopping_bag</span>
-                    <div class="stat-value">8</div>
+                    <div class="stat-value">-</div>
                     <div class="stat-label">Items Sold</div>
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">recycling</span>
-                    <div class="stat-value">15kg</div>
+                    <div class="stat-value">-</div>
                     <div class="stat-label">Waste Diverted</div>
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">savings</span>
-                    <div class="stat-value">₹1,200</div>
+                    <div class="stat-value">-</div>
                     <div class="stat-label">Earned</div>
                 </div>
                 <div class="stat-card stagger-item">
                     <span class="material-symbols-outlined bg-icon icon-filled">emoji_events</span>
-                    <div class="stat-value">Top 5%</div>
+                    <div class="stat-value">-</div>
                     <div class="stat-label">Seller Rank</div>
                 </div>
             </div>
@@ -440,9 +440,54 @@
                 </div>
                 <div class="wallet-amount">
                     <span class="material-symbols-outlined icon icon-filled">eco</span>
-                    <span class="value coin-value">850</span>
+                    <span class="value coin-value">-</span>
                 </div>
             </a>
+
+            <!-- Level & XP Section -->
+            <div class="level-card stagger-item"
+                style="background: linear-gradient(135deg, rgba(46, 184, 103, 0.1) 0%, rgba(46, 184, 103, 0.05) 100%); border: 2px solid var(--color-primary); border-radius: var(--radius-xl); padding: var(--space-4); margin-bottom: var(--space-6);">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3);">
+                    <div style="display: flex; align-items: center; gap: var(--space-3);">
+                        <div style="width: 48px; height: 48px; background: var(--color-primary); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900; font-size: var(--text-lg);"
+                            id="level-badge">1</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: var(--text-lg);" id="level-title">Rookie Recycler
+                            </div>
+                            <div
+                                style="font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.1em;">
+                                Current Level</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 700; color: var(--color-primary);" id="xp-display">0 XP</div>
+                        <div style="font-size: var(--text-xs); color: var(--color-text-muted);" id="xp-to-next">100 to
+                            next level</div>
+                    </div>
+                </div>
+                <div
+                    style="height: 8px; background: rgba(255,255,255,0.1); border-radius: var(--radius-full); overflow: hidden;">
+                    <div style="height: 100%; background: var(--color-primary); border-radius: var(--radius-full); box-shadow: 0 0 10px var(--color-primary-glow); transition: width 0.5s ease;"
+                        id="xp-progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Badges Section -->
+            <div class="badges-section stagger-item" style="margin-bottom: var(--space-6);">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3);">
+                    <h3
+                        style="font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-tertiary);">
+                        Badges Earned</h3>
+                    <span style="font-size: var(--text-xs); color: var(--color-text-muted);"
+                        id="badges-count">0/8</span>
+                </div>
+                <div id="badges-grid"
+                    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2);">
+                    <!-- Badges loaded dynamically -->
+                </div>
+            </div>
 
             <!-- Community Goal -->
             <div class="community-card stagger-item">
@@ -523,11 +568,117 @@
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
-    <script src="../../js/app.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" defer></script>
+    <script src="../../js/firebase-config.js" defer></script>
+    <script src="../../js/services/database.js" defer></script>
+    <script src="../../js/services/gamification.js" defer></script>
+    <script src="../../js/app.js" defer></script>
+
     <script>
+        // Load user profile from Firebase
+        async function loadUserProfile() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('No user logged in');
+                return;
+            }
+
+            try {
+                // Fetch user doc first as it's a dependency for rendering basic info
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (!userDoc.exists) {
+                    console.log('User document not found');
+                    return;
+                }
+
+                const user = userDoc.data();
+
+                // Update UI concurrently
+                requestAnimationFrame(() => {
+                    document.querySelector('.username').textContent = `@${user.name || 'User'}`;
+                    const coinValue = document.querySelector('.coin-value');
+                    if (coinValue) coinValue.textContent = user.coins || 0;
+
+                    const statValues = document.querySelectorAll('.stat-card .stat-value');
+                    if (statValues.length >= 4) {
+                        statValues[0].textContent = user.itemsTraded || 0;
+                        statValues[1].textContent = `${user.co2Saved || 0}kg`;
+                    }
+                    if (user.avatar) {
+                        document.querySelector('.user-avatar img').src = user.avatar;
+                    }
+                });
+
+                // Fetch auxiliary data in parallel
+                await Promise.all([
+                    loadLevelAndXP(userId, user),
+                    loadBadges(userId)
+                ]);
+
+                console.log('Loaded user profile fully');
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        // Load level and XP display
+        async function loadLevelAndXP(userId, user) {
+            const xp = user.xp || 0;
+            const progress = GamificationService.getLevelProgress(xp);
+            const title = GamificationService.getLevelTitle(progress.level);
+
+            // Update level badge
+            document.getElementById('level-badge').textContent = progress.level;
+
+            // Update level title
+            document.getElementById('level-title').textContent = title;
+
+            // Update XP display
+            document.getElementById('xp-display').textContent = `${xp} XP`;
+            document.getElementById('xp-to-next').textContent = `${progress.requiredXP - progress.levelXP} to next level`;
+
+            // Update progress bar
+            document.getElementById('xp-progress-bar').style.width = `${progress.percentage}%`;
+        }
+
+        // Load badges
+        async function loadBadges(userId) {
+            const badges = await GamificationService.getBadges(userId);
+            const unlockedCount = badges.filter(b => b.unlocked).length;
+
+            // Update count
+            document.getElementById('badges-count').textContent = `${unlockedCount}/${badges.length}`;
+
+            // Render badges grid
+            const grid = document.getElementById('badges-grid');
+            grid.innerHTML = badges.map(badge => `
+                <div style="
+                    aspect-ratio: 1;
+                    background: ${badge.unlocked ? 'rgba(46, 184, 103, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+                    border: 2px solid ${badge.unlocked ? 'var(--color-primary)' : 'var(--color-border)'};
+                    border-radius: var(--radius-lg);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: var(--space-2);
+                    transition: all var(--transition-base);
+                    cursor: pointer;
+                    ${badge.unlocked ? '' : 'opacity: 0.5; filter: grayscale(1);'}
+                " title="${badge.name}: ${badge.description}">
+                    <span style="font-size: 1.5rem;">${badge.icon}</span>
+                    <span style="font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; text-align: center; line-height: 1.1; color: ${badge.unlocked ? 'var(--color-text-primary)' : 'var(--color-text-muted)'};">
+                        ${badge.name.split(' ')[0]}
+                    </span>
+                </div>
+            `).join('');
+        }
+
         // Wallet action buttons
         document.querySelectorAll('.wallet-action-btn').forEach((btn, index) => {
-            const actions = ['History', 'Cash Out'];
             if (btn.textContent.trim() === 'History') {
                 btn.addEventListener('click', () => {
                     showToast('Loading coin history...');
@@ -536,6 +687,14 @@
                 btn.addEventListener('click', () => {
                     showToast('Cash out coming soon!');
                 });
+            }
+        });
+
+        // Load on auth state change
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                console.log('User logged in:', user.uid);
+                loadUserProfile();
             }
         });
     </script>

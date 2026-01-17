@@ -1546,8 +1546,49 @@
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/services/database.js"></script>
+    <script src="../../js/services/scanner.js?v=2"></script>
+    <script src="../../js/services/gamification.js"></script>
     <script src="../../js/app.js"></script>
     <script src="../../js/scanner.js"></script>
+    <script>
+        // Load user greeting
+        async function loadUserGreeting() {
+            const userId = getCurrentUserId();
+            if (!userId) return;
+
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const user = userDoc.data();
+                    // Update greeting if element exists
+                    const greetingTitle = document.querySelector('.greeting-title');
+                    if (greetingTitle && user.name) {
+                        greetingTitle.textContent = `Hi, ${user.name}!`;
+                    }
+                    // Update leaderboard "You" name
+                    const lbYou = document.querySelector('.lb-name.you');
+                    if (lbYou && user.name) {
+                        lbYou.textContent = user.name + ' (You)';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user greeting:', error);
+            }
+        }
+
+        // Load on auth
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                loadUserGreeting();
+            }
+        });
+    </script>
     <script>
         let cameraStarted = false;
         let flashOn = false;
@@ -1570,20 +1611,13 @@
             setupModalControls();
         });
 
-        // Open camera modal - redirects to mock scan flow
+        // Open camera modal
         async function openCameraModal() {
-            // For demo: Go to scanning animation page
-            window.location.href = '../scanner/scanning.html';
-            return;
-
-            // Original camera logic (commented out for demo)
-            /*
             const modal = document.getElementById('camera-modal');
             modal.classList.add('active');
             cameraModalOpen = true;
             document.body.style.overflow = 'hidden';
             await startCamera();
-            */
         }
 
         // Close camera modal
@@ -1671,21 +1705,8 @@
             });
         }
 
-        // Perform scan
+        // Perform scan using Hugging Face AI
         async function performScan() {
-            // Check if API key is set
-            if (!window.reloopScanner.apiKey) {
-                showApiKeyModal();
-                return;
-            }
-
-            // Open camera modal if not already open
-            if (!cameraModalOpen) {
-                await openCameraModal();
-                // Give camera time to initialize
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-
             // Start camera if not started
             if (!cameraStarted) {
                 await startCamera();
@@ -1696,24 +1717,38 @@
             const overlay = showScanningOverlay();
 
             try {
-                const result = await window.reloopScanner.scan();
+                // Capture frame from video
+                const video = document.getElementById('camera-video');
+                const canvas = document.getElementById('capture-canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
 
-                // Navigate to result page
-                window.location.href = '../scanner/result-dynamic.html';
+                // Use AIScannerService (Hugging Face) for analysis
+                if (typeof AIScannerService !== 'undefined') {
+                    const result = await AIScannerService.analyzeImage(imageBase64);
+                    if (result.success) {
+                        // Add captured image to result
+                        result.item.capturedImage = imageBase64;
+                        AIScannerService.storeResult(result.item);
+                        closeCameraModal();
+                        window.location.href = '../scanner/result-dynamic.html';
+                    } else {
+                        throw new Error(result.error || 'Analysis failed');
+                    }
+                } else {
+                    throw new Error('Scanner service not loaded');
+                }
 
             } catch (error) {
                 console.error('Scan error:', error);
                 hideScanningOverlay();
-
-                if (error.message.includes('API key')) {
-                    showApiKeyModal();
-                } else {
-                    showToast(error.message || 'Scan failed. Please try again.', 'error');
-                }
+                showToast(error.message || 'Scan failed. Please try again.', 'error');
             }
         }
 
-        // Handle file upload - MOCK: Always shows vase data
+        // Handle file upload - Uses real AI scanning
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1723,8 +1758,41 @@
                 closeCameraModal();
             }
 
-            // Navigate to scanning animation page
-            window.location.href = '../scanner/scanning.html';
+            // Show loading
+            const overlay = showScanningOverlay();
+
+            try {
+                // Read file as base64
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        // Use AIScannerService for analysis
+                        if (typeof AIScannerService !== 'undefined') {
+                            const result = await AIScannerService.analyzeImage(e.target.result);
+                            if (result.success) {
+                                // Add captured image to result
+                                result.item.capturedImage = e.target.result;
+                                AIScannerService.storeResult(result.item);
+                                window.location.href = '../scanner/result-dynamic.html';
+                            } else {
+                                throw new Error(result.error || 'Analysis failed');
+                            }
+                        } else {
+                            // Fallback to scanning animation
+                            window.location.href = '../scanner/scanning.html';
+                        }
+                    } catch (err) {
+                        console.error('Scan error:', err);
+                        hideScanningOverlay();
+                        showToast('Failed to analyze image. Please try again.', 'error');
+                    }
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Upload error:', error);
+                hideScanningOverlay();
+                showToast('Failed to upload image.', 'error');
+            }
 
             // Reset file input
             event.target.value = '';
