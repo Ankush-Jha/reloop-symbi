@@ -1435,6 +1435,23 @@
                                 <input type="password" id="login-password" class="form-input-auth"
                                     placeholder="Your password" required>
                             </div>
+
+                            <div style="text-align: center; margin-top: 10px;">
+                                <span style="font-size: 11px; color: rgba(255,255,255,0.4);">OR</span>
+                            </div>
+
+                            <button type="button" onclick="handleDemoLogin()" style="
+                                background: rgba(34, 195, 88, 0.1); 
+                                border: 1px solid var(--color-primary); 
+                                color: var(--color-primary);
+                                padding: 12px;
+                                border-radius: var(--radius-xl);
+                                font-weight: 700;
+                                cursor: pointer;
+                                margin-top: 10px;
+                            ">
+                                Use Demo Account
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -1473,6 +1490,41 @@
         let currentSlide = 1;
         const totalSlides = 4;
         let currentAuthMode = 'signup';
+
+        // Handle Demo Login
+        async function handleDemoLogin() {
+            setAuthLoading(true);
+            const demoEmail = 'demobuyer@reloop.app';
+            const demoPass = 'demobuyer123';
+
+            // Try login first
+            let result = await AuthService.signIn(demoEmail, demoPass);
+
+            if (result.success) {
+                console.log('Demo login success');
+                window.location.href = 'home.html';
+            } else {
+                console.log('Demo login failed, trying signup...', result.error);
+                // If login fails (user doesn't exist), try sign up
+                result = await AuthService.signUp(demoEmail, demoPass, 'Demo User', 'ReLoop Campus');
+
+                if (result.success) {
+                    console.log('Demo signup success');
+                    // Seed this new demo user with some coins/data immediately
+                    await db.collection('users').doc(result.user.uid).update({
+                        coins: 500,
+                        itemsTraded: 5,
+                        co2Saved: 12.5,
+                        level: 3,
+                        xp: 850
+                    });
+                    window.location.href = 'home.html';
+                } else {
+                    setAuthLoading(false);
+                    showAuthError('Demo login failed. Please try manual signup. ' + result.error);
+                }
+            }
+        }
 
         function updateSlide() {
             // Update slides
