@@ -90,21 +90,6 @@ npx serve .
 python -m http.server 3000
 ```
 
-### Deploying (Netlify)
-
-1.  **Push to GitHub**: Make sure your latest code is on GitHub.
-2.  **Log in to Netlify**: Go to [netlify.com](https://netlify.com) and sign in.
-3.  **New Site from Git**: Click "Add new site" > "Import an existing project".
-4.  **Connect Repo**: Select your `reloop-webapp` repository.
-5.  **Build Settings**:
-    *   **Build command**: *(Leave empty)*
-    *   **Publish directory**: `.` (or leave empty to publish root)
-6.  **Deploy**: Click "Deploy site".
-
-*Your app is now live on a Netlify URL!*
-
----
-
 ## 📁 Project Structure
 
 ```
